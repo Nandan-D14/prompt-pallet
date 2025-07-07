@@ -27,69 +27,19 @@ import {
 } from "lucide-react";
 import { UserProfileSidebarLink } from "./UserProfileSidebarLink";
 import { FiMail, FiMessageCircle, FiTool } from "react-icons/fi";
+import { useAuth } from "@/hooks/useAuth";
 
 export function SideBar({ children }: { children?: React.ReactNode }) {
-  const [user, setUser] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    let unsubscribe: any;
-    const fetchUser = async (firebaseUser: any) => {
-      if (!firebaseUser) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-      try {
-        const res = await fetch("/api/me", { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          
-          // Enhance user data with Firebase user info if available
-          const enhancedUserData = {
-            ...data,
-            // Use Google profile photo if no custom avatar is set
-            avatarUrl: data.avatarUrl || (firebaseUser.photoURL && !data.avatarUrl ? firebaseUser.photoURL : data.avatarUrl) || '',
-            // Use Firebase display name if no name is set
-            name: data.name || firebaseUser.displayName || data.email?.split('@')[0] || 'User'
-          };
-          
-          setUser(enhancedUserData);
-        } else {
-          setUser(null);
-        }
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    import("@/firebase/client").then(({ auth }) => {
-      unsubscribe = auth.onAuthStateChanged((firebaseUser: any) => {
-        fetchUser(firebaseUser);
-      });
-    });
-    
-    // Listen for user data updates from other components
-    const handleUserDataUpdated = (event: CustomEvent) => {
-      setUser(event.detail);
-      setLoading(false);
-    };
-    
-    window.addEventListener(
-      "userDataUpdated",
-      handleUserDataUpdated as EventListener
-    );
-    
-    return () => {
-      if (unsubscribe) unsubscribe();
-      window.removeEventListener(
-        "userDataUpdated",
-        handleUserDataUpdated as EventListener
-      );
-    };
-  }, []);
+  const { user, loading, error } = useAuth();
+  
+  if (error) {
+    console.error('SideNav: Auth error:', error);
+  }
+  
+  // Show loading state while auth is initializing
+  if (loading) {
+    console.log('SideNav: Auth loading...');
+  }
 
   const links = [
     {

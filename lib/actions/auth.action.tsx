@@ -110,22 +110,62 @@ export async function signOut() {
 
 // Get current user from session cookie
 export async function getCurrentUser(): Promise<User | null> {
-  const cookieStore = await cookies();
-
-  const sessionCookie = cookieStore.get("session")?.value;
-  if (!sessionCookie) return null;
-
   try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session")?.value;
+    
+    if (!sessionCookie) {
+      console.log("No session cookie found");
+      return null;
+    }
+
+    console.log("Verifying session cookie...");
     const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    console.log("Session verified for uid:", decodedClaims.uid);
 
     // get user info from db
     const userRecord = await db
       .collection("users")
       .doc(decodedClaims.uid)
       .get();
+      
     if (!userRecord.exists) {
       console.warn(`User document not found for uid: ${decodedClaims.uid}`);
-      return null;
+      // Try to get user from Firebase Auth if document doesn't exist
+      try {
+        const authUserRecord = await auth.getUser(decodedClaims.uid);
+        console.log("Found user in Firebase Auth, creating document...");
+        
+        // Check if user is admin
+        const ADMIN_EMAILS = [process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@example.com"];
+        const isAdmin = ADMIN_EMAILS.includes(authUserRecord.email ?? "");
+        
+        // Create user document
+        const userData = {
+          uid: authUserRecord.uid,
+          email: authUserRecord.email || "",
+          name: authUserRecord.displayName || authUserRecord.email?.split('@')[0] || 'User',
+          about: "",
+          isAdmin,
+          avatarUrl: authUserRecord.photoURL || "",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          savedPhotos: 0,
+          savedPhotosList: [],
+          likedPhotos: []
+        };
+        
+        await db.collection("users").doc(authUserRecord.uid).set(userData);
+        console.log("User document created for:", authUserRecord.email);
+        
+        return {
+          ...userData,
+          id: authUserRecord.uid
+        } as User;
+      } catch (authError) {
+        console.error("Error getting user from Firebase Auth:", authError);
+        return null;
+      }
     }
     
     // Get user data
@@ -153,9 +193,18 @@ export async function getCurrentUser(): Promise<User | null> {
       avatarUrl: userData?.avatarUrl || "",
     } as User;
   } catch (error: any) {
-    console.error("Session verification error:", error.message);
+    console.error("Session verification error:", error.message, error.code);
+    
+    // Clear invalid session cookie
+    if (error.code === 'auth/session-cookie-expired' || 
+        error.code === 'auth/session-cookie-revoked' ||
+        error.message.includes('expired') ||
+        error.message.includes('revoked')) {
+      console.log("Clearing expired/invalid session cookie");
+      const cookieStore = await cookies();
+      cookieStore.delete("session");
+    }
 
-    // Invalid or expired session
     return null;
   }
 }

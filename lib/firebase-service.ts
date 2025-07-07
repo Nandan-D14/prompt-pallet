@@ -435,6 +435,7 @@ export class FirebaseService {
   // Helper Methods
   private async setServerSession(uid: string, name: string, email: string, idToken: string): Promise<void> {
     try {
+      console.log("Setting server session for:", email);
       const { signIn } = await import("@/lib/actions/auth.action");
       
       // Call signIn to set the server session
@@ -442,18 +443,22 @@ export class FirebaseService {
       
       if (!result.success) {
         console.error("Failed to set server session:", result.message);
-        throw new Error(result.message);
+        // Don't throw error for session issues, as user can still use client-side auth
+        console.warn("Continuing with client-side authentication only");
+        return;
       }
       
       console.log("Server session set successfully for:", email);
     } catch (error) {
       console.error("Error setting server session:", error);
-      throw error;
+      // Don't throw error for session issues, as user can still use client-side auth
+      console.warn("Continuing with client-side authentication only");
     }
   }
 
   private async setServerSignUpSession(uid: string, name: string, email: string): Promise<void> {
     try {
+      console.log("Creating user on server for:", email);
       const { signUp } = await import("@/lib/actions/auth.action");
       
       // Call signUp to create user in server
@@ -461,13 +466,16 @@ export class FirebaseService {
       
       if (!result.success) {
         console.error("Failed to create user on server:", result.message);
-        throw new Error(result.message);
+        // Don't throw error for session issues, as user document is created in Firestore
+        console.warn("User document created in Firestore, continuing without server session");
+        return;
       }
       
       console.log("User created on server successfully:", email);
     } catch (error) {
       console.error("Error creating user on server:", error);
-      throw error;
+      // Don't throw error for session issues, as user document is created in Firestore
+      console.warn("User document created in Firestore, continuing without server session");
     }
   }
 

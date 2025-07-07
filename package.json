@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit",
     "env-check": "node scripts/env-check.js",
     "firebase-test": "node scripts/test-firebase-connection.js",
+    "auth-test": "node scripts/test-auth-setup.js",
     "seed-db": "node scripts/seed-database.js",
     "deploy-check": "node scripts/pre-deploy-check.js",
     "deploy-prep": "node deploy-prep.js",
