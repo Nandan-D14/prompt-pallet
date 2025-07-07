@@ -1,0 +1,280 @@
+import { db } from '@/firebase/client';
+import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+
+// Updated sample data
+const photoData = [
+  {
+    id: "1",
+    src: "https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    alt: "Northern Winter Sky Image",
+    title: "Northern Winter Sky",
+    description: "A breathtaking view of the aurora borealis over a winter landscape.",
+    tags: ["Nature", "Winter", "Aurora", "Trending"],
+    height: 750,
+    likes: 345,
+    prompt: "A wide shot of the northern lights dancing over a snowy forest, with clear stars in the sky.",
+    orientation: "horizontal",
+    color: "blue",
+    gridSize: "large",
+  },
+  {
+    id: "2",
+    src: "https://images.pexels.com/photos/1142950/pexels-photo-1142950.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    alt: "Shining Stars Image",
+    title: "Shining Stars",
+    description: "A beautiful night sky filled with countless shining stars.",
+    tags: ["Night", "Stars", "Sky"],
+    height: 750,
+    likes: 210,
+    prompt: "Long exposure of a starry night sky over a dark landscape, focusing on the Milky Way.",
+    orientation: "horizontal",
+    color: "dark",
+    gridSize: "wide",
+  },
+  {
+    id: "3",
+    src: "https://images.pexels.com/photos/3933881/pexels-photo-3933881.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    alt: "A River Flowing Image",
+    title: "River Flow",
+    description: "A serene river flowing through a lush green valley.",
+    tags: ["Nature", "River", "Landscape"],
+    height: 750,
+    likes: 180,
+    prompt: "A calm river winding through a vibrant green valley, with soft sunlight.",
+    orientation: "horizontal",
+    color: "green",
+    gridSize: "wide",
+  },
+  {
+    id: "4",
+    src: "https://images.pexels.com/photos/5409751/pexels-photo-5409751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    alt: "A cloudy Mountain Image",
+    title: "Cloudy Mountain",
+    description: "Majestic mountains shrouded in mystical clouds.",
+    tags: ["Nature", "Mountain", "Clouds"],
+    height: 750,
+    likes: 95,
+    prompt: "A dramatic view of a mountain peak partially obscured by swirling clouds.",
+    orientation: "horizontal",
+    color: "gray",
+    gridSize: "normal",
+  },
+  {
+    id: "5",
+    src: "https://images.pexels.com/photos/4101555/pexels-photo-4101555.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    alt: "A Winter Rainbow Image",
+    title: "Winter Rainbow",
+    description: "A rare and beautiful rainbow appearing in a winter sky.",
+    tags: ["Nature", "Winter", "Rainbow"],
+    height: 750,
+    likes: 130,
+    prompt: "A vibrant rainbow arching over a snow-covered landscape during winter.",
+    orientation: "horizontal",
+    color: "white",
+    gridSize: "normal",
+  },
+  {
+    id: "6",
+    src: "https://images.pexels.com/photos/443446/pexels-photo-443446.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    alt: "A Clean Mountain Lake",
+    title: "Mountain Lake",
+    description: "Crystal clear waters of a mountain lake reflecting the sky.",
+    tags: ["Nature", "Lake", "Mountain"],
+    height: 750,
+    likes: 280,
+    prompt: "An aerial view of a pristine mountain lake with clear blue water and surrounding pine trees.",
+    orientation: "horizontal",
+    color: "blue",
+    gridSize: "wide",
+  },
+  {
+    id: "7",
+    src: "https://images.pexels.com/photos/1142950/pexels-photo-1142950.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    alt: "Shining Stars Image",
+    title: "Shining Stars Again",
+    description: "Another stunning capture of the night sky.",
+    tags: ["Night", "Stars", "Sky"],
+    height: 750,
+    likes: 200,
+    prompt: "A different perspective of a starry night, with a focus on a specific constellation.",
+    orientation: "horizontal",
+    color: "dark",
+    gridSize: "normal",
+  },
+  {
+    id: "8",
+    src: "https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=800&h=1200&dpr=2",
+    alt: "Cityscape at Sunset",
+    title: "City Sunset",
+    description: "Vibrant city skyline at dusk. A beautiful blend of urban architecture and natural light.",
+    tags: ["City", "Sunset", "Urban", "Trending"],
+    height: 1200,
+    likes: 450,
+    prompt: "A wide shot of a modern city at sunset, with warm orange and purple hues in the sky, reflecting on glass buildings.",
+    orientation: "vertical",
+    color: "orange",
+    gridSize: "large",
+  },
+  {
+    id: "9",
+    src: "https://images.pexels.com/photos/1054218/pexels-photo-1054218.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&dpr=2",
+    alt: "Mountain Lake",
+    title: "Alpine Serenity",
+    description: "Tranquil lake surrounded by majestic snow-capped mountains under a clear sky.",
+    tags: ["Nature", "Mountain", "Lake"],
+    height: 1000,
+    likes: 389,
+    prompt: "A serene alpine lake reflecting snow-capped peaks, with crystal clear water and a deep blue sky.",
+    orientation: "vertical",
+    color: "blue",
+    gridSize: "normal",
+  },
+  {
+    id: "10",
+    src: "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=800&h=1200&dpr=2",
+    alt: "Abstract Light Trails",
+    title: "Light Trails",
+    description: "Dynamic light streaks in motion, creating an abstract and futuristic pattern.",
+    tags: ["Abstract", "Light", "Motion", "Trending"],
+    height: 1200,
+    likes: 510,
+    prompt: "Long exposure photography of car lights on a winding road at night, creating vibrant light trails against a dark background.",
+    orientation: "vertical",
+    color: "purple",
+    gridSize: "normal",
+  },
+  {
+    id: "11",
+    src: "https://images.pexels.com/photos/1122408/pexels-photo-1122408.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&dpr=2",
+    alt: "Forest Road",
+    title: "Enchanted Path",
+    description: "A winding road through a dense, green forest, inviting exploration.",
+    tags: ["Nature", "Forest", "Road"],
+    height: 1000,
+    likes: 275,
+    prompt: "A narrow, winding dirt road disappearing into a dense, sun-dappled forest, with tall trees and lush undergrowth.",
+    orientation: "vertical",
+    color: "green",
+    gridSize: "normal",
+  },
+  {
+    id: "12",
+    src: "https://images.pexels.com/photos/113338/pexels-photo-113338.jpeg?auto=compress&cs=tinysrgb&w=800&h=1200&dpr=2",
+    alt: "Coffee Cup",
+    title: "Morning Brew",
+    description: "A cozy moment with a steaming cup of coffee on a rustic wooden table.",
+    tags: ["Food", "Lifestyle", "Coffee"],
+    height: 1200,
+    likes: 150,
+    prompt: "A close-up shot of a white ceramic coffee cup with steam rising, placed on a wooden table next to a window with soft morning light.",
+    orientation: "vertical",
+    color: "brown",
+    gridSize: "large",
+  },
+  {
+    id: "13",
+    src: "https://images.pexels.com/photos/1169084/pexels-photo-1169084.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&dpr=2",
+    alt: "Desert Landscape",
+    title: "Arid Beauty",
+    description: "Vast, untouched desert landscape with rolling sand dunes under a clear blue sky.",
+    tags: ["Nature", "Desert", "Landscape"],
+    height: 1000,
+    likes: 60,
+    prompt: "An expansive desert landscape featuring undulating sand dunes, with clear blue skies and harsh sunlight casting long shadows.",
+    orientation: "vertical",
+    color: "yellow",
+    gridSize: "normal",
+  },
+  {
+    id: "14",
+    src: "https://images.pexels.com/photos/1206059/pexels-photo-1206059.jpeg?auto=compress&cs=tinysrgb&w=800&h=1200&dpr=2",
+    alt: "Waterfall",
+    title: "Cascading Waters",
+    description: "A powerful waterfall in a lush, green environment, surrounded by vibrant foliage.",
+    tags: ["Nature", "Waterfall", "Forest"],
+    height: 1200,
+    likes: 180,
+    prompt: "A majestic waterfall with clear, powerful water cascading down rocks into a pool, surrounded by dense, green rainforest.",
+    orientation: "vertical",
+    color: "green",
+    gridSize: "normal",
+  },
+  {
+    id: "15",
+    src: "https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&dpr=2",
+    alt: "Geometric Pattern",
+    title: "Modern Geometry",
+    description: "Intricate patterns in modern architecture, showcasing repetitive geometric forms.",
+    tags: ["Abstract", "Architecture", "Pattern"],
+    height: 1000,
+    likes: 95,
+    prompt: "A close-up of a modern building facade with repeating geometric patterns, focusing on lines and shadows.",
+    orientation: "square",
+    color: "gray",
+    gridSize: "normal",
+  }
+];
+
+export async function migrateDataToFirestore() {
+  try {
+    console.log('Starting migration of data to Firestore...');
+    
+    for (const photo of photoData) {
+      // Check if this photo already exists
+      const existingQuery = query(
+        collection(db, 'gallery'), 
+        where('title', '==', photo.title),
+        where('src', '==', photo.src)
+      );
+      
+      const existingDocs = await getDocs(existingQuery);
+      
+      if (existingDocs.empty) {
+        // Photo doesn't exist, add it
+        const docData = {
+          ...photo,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          // Validate orientation
+          orientation: ['horizontal', 'vertical', 'square'].includes(photo.orientation) ? photo.orientation : 'horizontal',
+          // Validate color
+          color: ['blue', 'green', 'red', 'yellow', 'orange', 'purple', 'brown', 'gray', 'white', 'black', 'dark'].includes(photo.color) ? photo.color : 'blue',
+          // Validate gridSize
+          gridSize: ['normal', 'wide', 'large', 'small', 'square'].includes(photo.gridSize) ? photo.gridSize : 'normal'
+        };
+        
+        // Remove the id field as Firestore will generate one
+        delete (docData as any).id;
+        
+        const docRef = await addDoc(collection(db, 'gallery'), docData);
+        console.log(`Added photo: ${photo.title} with ID: ${docRef.id}`);
+      } else {
+        console.log(`Photo already exists: ${photo.title}`);
+      }
+    }
+    
+    console.log('Migration completed successfully!');
+    return { success: true, message: 'Data migration completed' };
+  } catch (error) {
+    console.error('Error migrating data:', error);
+    return { success: false, error: error };
+  }
+}
+
+// Function to check and migrate data if needed
+export async function checkAndMigrateData() {
+  try {
+    const gallerySnapshot = await getDocs(collection(db, 'gallery'));
+    
+    if (gallerySnapshot.empty) {
+      console.log('Gallery collection is empty, starting migration...');
+      return await migrateDataToFirestore();
+    } else {
+      console.log(`Gallery already has ${gallerySnapshot.size} items`);
+      return { success: true, message: 'Data already exists' };
+    }
+  } catch (error) {
+    console.error('Error checking gallery data:', error);
+    return { success: false, error: error };
+  }
+}

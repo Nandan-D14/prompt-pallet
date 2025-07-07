@@ -20,7 +20,7 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     
     // Only allow updating specific fields
-    const allowedFields = ['name', 'about', 'avatarUrl'];
+    const allowedFields = ['name', 'about', 'avatarUrl', 'savedPhotosList', 'savedPhotos', 'likedPhotos'];
     const updateData: Record<string, any> = {};
     
     allowedFields.forEach(field => {
@@ -28,6 +28,11 @@ export async function PUT(request: NextRequest) {
         updateData[field] = data[field];
       }
     });
+    
+    // Special handling for saved photos count
+    if (data.savedPhotosList !== undefined) {
+      updateData.savedPhotos = Array.isArray(data.savedPhotosList) ? data.savedPhotosList.length : 0;
+    }
     
     // Add updatedAt timestamp
     updateData.updatedAt = new Date();

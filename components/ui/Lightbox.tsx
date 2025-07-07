@@ -1,19 +1,36 @@
-import { X, ChevronLeft, ChevronRight, Heart, Share2, Bookmark, Info, Check, Copy } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Heart, Share2, Bookmark, Info, Check, Copy, Download } from "lucide-react";
+import { FiHeart, FiDownload, FiShare2, FiCopy, FiSave } from "react-icons/fi";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import { Photo } from "./PhotoCard";
+
+interface LightboxProps {
+  photos: Photo[];
+  currentPhotoId: string | null;
+  onClose: () => void;
+  onNavigate: (direction: "prev" | "next") => void;
+  user?: any;
+  onLike?: (photoId: string) => void;
+  onSave?: (photo: Photo) => void;
+  onShare?: (photo: Photo) => void;
+  onDownload?: (photo: Photo) => void;
+  likedPhotos?: Set<string>;
+  savedPhotos?: Set<string>;
+}
 
 const Lightbox = ({
   photos,
   currentPhotoId,
   onClose,
   onNavigate,
-}: {
-  photos: Photo[];
-  currentPhotoId: string | null;
-  onClose: () => void;
-  onNavigate: (direction: "prev" | "next") => void;
-}) => {
+  user,
+  onLike,
+  onSave,
+  onShare,
+  onDownload,
+  likedPhotos = new Set(),
+  savedPhotos = new Set(),
+}: LightboxProps) => {
   const currentPhoto = photos.find((p) => p.id === currentPhotoId);
   const currentIndex = photos.findIndex((p) => p.id === currentPhotoId);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
@@ -31,26 +48,8 @@ const Lightbox = ({
 
   if (!currentPhoto) return null;
 
-  const handleLike = () => console.log(`Liked photo ${currentPhoto.id}`);
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: currentPhoto.title,
-        text: currentPhoto.description,
-        url: currentPhoto.src,
-      }).then(() => console.log('Shared successfully'))
-        .catch((error) => console.error('Error sharing:', error));
-    } else {
-      const el = document.createElement('textarea');
-      el.value = currentPhoto.src;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-      alert(`Link copied to clipboard: ${currentPhoto.src}`);
-    }
-  };
-  const handleSave = () => console.log(`Saved photo ${currentPhoto.id}`);
+  const isLiked = likedPhotos.has(currentPhoto.id);
+  const isSaved = savedPhotos.has(currentPhoto.id);
 
   const handleCopyPrompt = () => {
     if (currentPhoto.prompt) {
@@ -71,11 +70,13 @@ const Lightbox = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/[0.8] backdrop-blur-xl p-4 md:p-8" 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xl p-4 md:p-8" 
       onClick={onClose}
     >
       <div
-        className="relative flex flex-col lg:flex-row bg-black/70 rounded-lg shadow-2xl overflow-hidden max-w-8xl w-full h-[90vh] border border-neutral-700" /* Liquid glass border */
+        className="relative flex flex-col lg:flex-row bg-white/10 dark:bg-black/10 backdrop-blur-2xl 
+                   rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl 
+                   overflow-hidden max-w-8xl w-full h-[95vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <motion.button
@@ -127,38 +128,88 @@ const Lightbox = ({
           />
         </motion.div>
 
-        <div className="w-full lg:w-96 p-6 bg-black/70 text-neutral-200 flex flex-col overflow-y-auto backdrop-blur-md"> {/* Liquid glass sidebar */}
-          <h3 className="text-2xl font-bold text-neutral-100 mb-2">{currentPhoto.title}</h3>
-          <p className="text-sm text-neutral-300 mb-4">{currentPhoto.description}</p>
+        <div className="w-full lg:w-96 p-6 bg-white/5 dark:bg-black/5 backdrop-blur-xl 
+                      text-gray-900 dark:text-white flex flex-col overflow-y-auto border-l border-white/10 dark:border-white/5">
+          <h3 className="text-2xl font-bold mb-2">{currentPhoto.title}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">{currentPhoto.description}</p>
 
-          <div className="flex gap-4 mb-6">
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {/* Like Button */}
             <button
-              onClick={handleLike}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/[0.8] text-white text-sm font-medium hover:bg-blue-700/[0.9] transition-colors backdrop-blur-sm" /* Liquid glass button */
+              onClick={() => onLike?.(currentPhoto.id)}
+              disabled={!user}
+              className={`liquid-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                        backdrop-blur-xl transition-all duration-300 font-medium text-sm
+                        ${isLiked 
+                          ? 'bg-red-500/80 text-white' 
+                          : 'bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10 hover:bg-red-500/20'
+                        }
+                        ${!user ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
             >
-              <Heart size={18} /> {currentPhoto.likes || 0} Likes
+              <FiHeart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+              {isLiked ? 'Liked' : 'Like'}
             </button>
+            
+            {/* Save Button */}
             <button
-              onClick={handleShare}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-700/[0.8] text-neutral-200 text-sm font-medium hover:bg-neutral-600/[0.9] transition-colors backdrop-blur-sm" /* Liquid glass button */
+              onClick={() => onSave?.(currentPhoto)}
+              disabled={!user}
+              className={`liquid-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                        backdrop-blur-xl transition-all duration-300 font-medium text-sm
+                        ${isSaved 
+                          ? 'bg-blue-500/80 text-white' 
+                          : 'bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10 hover:bg-blue-500/20'
+                        }
+                        ${!user ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
             >
-              <Share2 size={18} /> Share
+              <FiSave className="w-4 h-4" />
+              {isSaved ? 'Saved' : 'Save'}
             </button>
+            
+            {/* Share Button */}
             <button
-              onClick={handleSave}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-700/[0.8] text-neutral-200 text-sm font-medium hover:bg-neutral-600/[0.9] transition-colors backdrop-blur-sm" /* Liquid glass button */
+              onClick={() => onShare?.(currentPhoto)}
+              className="liquid-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                       bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10
+                       hover:bg-green-500/20 backdrop-blur-xl transition-all duration-300 
+                       font-medium text-sm hover:scale-105"
             >
-              <Bookmark size={18} /> Save
+              <FiShare2 className="w-4 h-4" />
+              Share
+            </button>
+            
+            {/* Download Button */}
+            <button
+              onClick={() => onDownload?.(currentPhoto)}
+              className="liquid-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                       bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10
+                       hover:bg-purple-500/20 backdrop-blur-xl transition-all duration-300 
+                       font-medium text-sm hover:scale-105"
+            >
+              <FiDownload className="w-4 h-4" />
+              Download
             </button>
           </div>
+          
+          {!user && (
+            <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+              <p className="text-sm text-yellow-600 dark:text-yellow-400 text-center">
+                Sign in to like and save photos
+              </p>
+            </div>
+          )}
 
+          {/* Tags Section */}
           <div className="mb-6">
-            <h4 className="text-lg font-semibold text-neutral-100 mb-2">Tags</h4>
+            <h4 className="text-lg font-semibold mb-3">Tags</h4>
             <div className="flex flex-wrap gap-2">
               {currentPhoto.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs px-3 py-1 rounded-full bg-neutral-700/[0.8] text-neutral-300 backdrop-blur-sm" /* Liquid glass tag */
+                  className="text-xs px-3 py-2 rounded-full bg-white/10 dark:bg-black/10 
+                           border border-white/20 dark:border-white/10 backdrop-blur-xl
+                           text-gray-700 dark:text-gray-300"
                 >
                   {tag}
                 </span>
@@ -166,13 +217,17 @@ const Lightbox = ({
             </div>
           </div>
 
+          {/* Prompt Details Section */}
           <div>
-            <h4 className="text-lg font-semibold text-neutral-100 mb-2 flex items-center gap-2">
+            <h4 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <Info size={18} /> Prompt Details
               {currentPhoto.prompt && (
                 <motion.button
                   onClick={handleCopyPrompt}
-                  className="ml-auto p-1 rounded-full bg-neutral-700/[0.8] text-neutral-300 hover:bg-neutral-600/[0.9] transition-colors flex items-center gap-1 text-xs backdrop-blur-sm" /* Liquid glass button */
+                  className="ml-auto p-2 rounded-xl bg-white/10 dark:bg-black/10 
+                           border border-white/20 dark:border-white/10 backdrop-blur-xl
+                           hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-300 
+                           flex items-center gap-2 text-xs"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -182,15 +237,18 @@ const Lightbox = ({
                     </>
                   ) : (
                     <>
-                      <Copy size={14} /> Copy
+                      <FiCopy size={14} /> Copy
                     </>
                   )}
                 </motion.button>
               )}
             </h4>
-            <p className="text-sm text-neutral-300 bg-neutral-700/[0.8] p-3 rounded-md backdrop-blur-sm"> {/* Liquid glass prompt area */}
-              {currentPhoto.prompt || "No specific prompt details available for this image."}
-            </p>
+            <div className="bg-white/5 dark:bg-black/5 border border-white/10 dark:border-white/5 
+                          rounded-xl p-4 backdrop-blur-xl">
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                {currentPhoto.prompt || "No specific prompt details available for this image."}
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { db, auth } from "@/firebase/client";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import {
   X,
   ChevronLeft,
@@ -12,10 +12,15 @@ import {
   Filter,
   ChevronDown,
   Image as ImageIcon,
-  Video,
-  Users,
+  Heart,
+  Download,
+  Share2,
+  Copy,
+  Eye,
+  Save,
   Check,
 } from "lucide-react";
+import { FiHeart, FiDownload, FiShare2, FiCopy, FiSave, FiEye } from "react-icons/fi";
 import Lightbox from "./ui/Lightbox";
 import { Photo, PhotoCard } from "./ui/PhotoCard";
 
@@ -28,7 +33,15 @@ const TrendingSlideshow = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const slideshowPhotos = useMemo(() => {
-    return [...photos]
+    // First try to get photos with 'trending' tag
+    const trendingPhotos = photos.filter(photo => 
+      photo.tags.some(tag => tag.toLowerCase() === 'trending')
+    );
+    
+    // If we have trending photos, use them, otherwise use highest liked photos
+    const photosToShow = trendingPhotos.length > 0 ? trendingPhotos : photos;
+    
+    return [...photosToShow]
       .sort((a, b) => (b.likes || 0) - (a.likes || 0))
       .slice(0, 10);
   }, [photos]);
@@ -59,7 +72,11 @@ const TrendingSlideshow = ({
   const currentPhoto = slideshowPhotos[currentIndex];
 
   return (
-    <section className="relative w-full max-w-screen-xl mx-auto h-[400px] md:h-[600px] bg-neutral-900/[0.8] overflow-hidden rounded-lg shadow-xl mb-8 border border-neutral-700 backdrop-blur-lg">
+    <section className="relative w-full max-w-screen-xl mx-auto h-[400px] md:h-[600px] 
+                     bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl 
+                     border border-white/20 dark:border-white/10
+                     shadow-2xl shadow-black/10 dark:shadow-black/20
+                     overflow-hidden mb-8">
       {" "}
       <AnimatePresence initial={false}>
         <motion.img
@@ -125,13 +142,35 @@ export default function Gallery() {
   const [selectedOrientation, setSelectedOrientation] = useState<
     Photo["orientation"] | "All"
   >("All");
-
   const [selectedColor, setSelectedColor] = useState<string | "All">("All");
+  const [likedPhotos, setLikedPhotos] = useState<Set<string>>(new Set());
+  const [savedPhotos, setSavedPhotos] = useState<Set<string>>(new Set());
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
-  // Listen for auth state changes
+  // Listen for auth state changes and fetch user data
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       setUser(firebaseUser);
+      if (firebaseUser) {
+        // Fetch user data from API to get saved/liked photos
+        try {
+          const response = await fetch('/api/me');
+          if (response.ok) {
+            const userData = await response.json();
+            if (userData.likedPhotos) {
+              setLikedPhotos(new Set(userData.likedPhotos));
+            }
+            if (userData.savedPhotosList) {
+              setSavedPhotos(new Set(userData.savedPhotosList));
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      } else {
+        setLikedPhotos(new Set());
+        setSavedPhotos(new Set());
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -253,6 +292,172 @@ export default function Gallery() {
     setFiltersOpen(false);
   };
 
+  // Authentication-required actions
+  const handleLikePhoto = async (photoId: string) => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    try {
+      const isLiked = likedPhotos.has(photoId);
+      const newIsLiked = !isLiked;
+      
+      // Optimistically update UI
+      const newLikedPhotos = new Set(likedPhotos);
+      if (newIsLiked) {
+        newLikedPhotos.add(photoId);
+      } else {
+        newLikedPhotos.delete(photoId);
+      }
+      setLikedPhotos(newLikedPhotos);
+      
+      // Update server
+      const response = await fetch('/api/user/liked-photos', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await user.getIdToken()}`
+        },
+        body: JSON.stringify({
+          photoId,
+          isLiked: newIsLiked
+        })
+      });
+      
+      if (!response.ok) {
+        // Revert on error
+        setLikedPhotos(likedPhotos);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to update liked photos');
+      }
+      
+      const result = await response.json();
+      // Update with server response to ensure consistency
+      setLikedPhotos(new Set(result.likedPhotos));
+    } catch (error) {
+      console.error('Error updating liked photos:', error);
+      // Revert optimistic update
+      setLikedPhotos(likedPhotos);
+      // Show user-friendly error message
+      alert('Failed to update liked photos. Please try again.');
+    }
+  };
+
+  const handleSavePhoto = async (photo: Photo) => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    try {
+      const isSaved = savedPhotos.has(photo.id);
+      const newIsSaved = !isSaved;
+      
+      // Optimistically update UI
+      const newSavedPhotos = new Set(savedPhotos);
+      if (newIsSaved) {
+        newSavedPhotos.add(photo.id);
+      } else {
+        newSavedPhotos.delete(photo.id);
+      }
+      setSavedPhotos(newSavedPhotos);
+      
+      // Update server
+      const response = await fetch('/api/user/saved-photos', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await user.getIdToken()}`
+        },
+        body: JSON.stringify({
+          photoId: photo.id,
+          isSaved: newIsSaved
+        })
+      });
+      
+      if (!response.ok) {
+        // Revert on error
+        setSavedPhotos(savedPhotos);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to update saved photos');
+      }
+      
+      const result = await response.json();
+      // Update with server response to ensure consistency
+      setSavedPhotos(new Set(result.savedPhotosList));
+    } catch (error) {
+      console.error('Error updating saved photos:', error);
+      // Revert optimistic update
+      setSavedPhotos(savedPhotos);
+      // Show user-friendly error message
+      alert('Failed to update saved photos. Please try again.');
+    }
+  };
+
+  const handleSharePhoto = async (photo: Photo) => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: photo.title,
+          text: photo.description,
+          url: photo.src,
+        });
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(photo.src);
+        alert('Photo URL copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing photo:', error);
+      alert('Failed to share photo. Please try again.');
+    }
+  };
+
+  const handleDownloadPhoto = async (photo: Photo) => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    try {
+      const response = await fetch(photo.src);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${photo.title}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading photo:', error);
+      alert('Failed to download photo. Please try again.');
+    }
+  };
+
+  // Handle copying AI prompt
+  const handleCopyPrompt = async (photo: Photo) => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    try {
+      await navigator.clipboard.writeText(photo.prompt || photo.description);
+      alert('AI prompt copied to clipboard!');
+    } catch (error) {
+      console.error('Error copying prompt:', error);
+      alert('Failed to copy prompt. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black/70 text-neutral-100 font-sans relative pb-20 overflow-x-hidden">
       <TrendingSlideshow photos={photos} openLightbox={openLightbox} />
@@ -282,19 +487,6 @@ export default function Gallery() {
             >
               <Filter size={16} /> Filters
             </button>
-            <div className="relative">
-              <select className="bg-neutral-800/[0.7] text-neutral-200 rounded-full px-4 py-2 text-sm appearance-none pr-8 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm">
-                {" "}
-                {/* Liquid glass select */}
-                <option>Popular</option>
-                <option>Newest</option>
-                <option>Trending</option>
-              </select>
-              <ChevronDown
-                size={16}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
-              />
-            </div>
           </div>
         </div>
 
@@ -303,32 +495,24 @@ export default function Gallery() {
           {filteredPhotos.length > 0 ? (
             <motion.div
               layout
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-auto auto-flow-dense"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-auto"
             >
               <AnimatePresence>
                 {filteredPhotos.map((photo) => (
-                  <div key={photo.id} className="relative group">
-                    <PhotoCard photo={photo} onClick={openLightbox} />
-                    <button
-                      onClick={() => {
-                        if (!user) {
-                          window.location.href = "/sign-in";
-                          return;
-                        }
-                        // Save photo to localStorage
-                        let saved = JSON.parse(localStorage.getItem("savedPhotos") || "[]");
-                        if (!saved.find((p: any) => p.id === photo.id)) {
-                          saved.push(photo);
-                          localStorage.setItem("savedPhotos", JSON.stringify(saved));
-                        }
-                        // Optionally show feedback
-                        alert("Photo saved!");
-                      }}
-                      className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700 transition-opacity opacity-80 group-hover:opacity-100"
-                    >
-                      Save
-                    </button>
-                  </div>
+                  <PhotoCard 
+                    key={photo.id}
+                    photo={photo} 
+                    onClick={openLightbox}
+                    onLike={handleLikePhoto}
+                    onSave={handleSavePhoto}
+                    onShare={handleSharePhoto}
+                    onDownload={handleDownloadPhoto}
+                    onCopyPrompt={handleCopyPrompt}
+                    isLiked={likedPhotos.has(photo.id)}
+                    isSaved={savedPhotos.has(photo.id)}
+                    user={user}
+                    showActions={true}
+                  />
                 ))}
               </AnimatePresence>
             </motion.div>
@@ -352,7 +536,72 @@ export default function Gallery() {
             currentPhotoId={currentPhotoId}
             onClose={closeLightbox}
             onNavigate={navigateLightbox}
+            user={user}
+            onLike={handleLikePhoto}
+            onSave={handleSavePhoto}
+            onShare={handleSharePhoto}
+            onDownload={handleDownloadPhoto}
+            likedPhotos={likedPhotos}
+            savedPhotos={savedPhotos}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Login Prompt Modal */}
+      <AnimatePresence>
+        {showLoginPrompt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowLoginPrompt(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl 
+                       border border-white/20 dark:border-white/10 shadow-2xl 
+                       p-8 max-w-md w-full text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 
+                              rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <Heart className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  Sign in Required
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Please sign in to like, save, and interact with photos.
+                </p>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    window.location.href = '/sign-in';
+                  }}
+                  className="flex-1 liquid-btn bg-gradient-to-r from-blue-500 to-purple-600 
+                           hover:from-blue-600 hover:to-purple-700 text-white font-semibold 
+                           py-3 rounded-2xl transition-all duration-300"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => setShowLoginPrompt(false)}
+                  className="flex-1 bg-white/10 dark:bg-black/10 backdrop-blur-xl
+                           border border-white/20 dark:border-white/10
+                           text-gray-900 dark:text-white font-semibold py-3 rounded-2xl 
+                           transition-all duration-300 hover:bg-white/20 dark:hover:bg-black/20"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 

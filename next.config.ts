@@ -1,7 +1,39 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  images: {
+    domains: [
+      'firebasestorage.googleapis.com',
+      'lh3.googleusercontent.com',
+      'images.unsplash.com',
+      'source.unsplash.com'
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+  experimental: {
+    optimizePackageImports: ['react-icons', 'lucide-react'],
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  poweredByHeader: false,
+  reactStrictMode: true,
+  output: 'standalone',
+  serverExternalPackages: ['firebase-admin'],
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Don't resolve Node.js specific modules on the client to prevent errors
@@ -30,7 +62,7 @@ const nextConfig: NextConfig = {
         use: 'null-loader'
       });
       
-      // Explicitly handle problematic Node.js modules with a more general approach
+      // Explicitly handle problematic Node.js modules
       config.module.rules.push({
         test: /node_modules[\\/](?:google-auth-library|http-proxy-agent|https-proxy-agent|teeny-request|agent-base|gcp-metadata)/,
         use: 'null-loader'

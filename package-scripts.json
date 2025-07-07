@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "export": "next export",
+    "deploy:vercel": "vercel --prod",
+    "deploy:netlify": "netlify deploy --prod",
+    "build:analyze": "ANALYZE=true npm run build",
+    "test": "echo \"No tests specified\" && exit 0"
+  }
+}

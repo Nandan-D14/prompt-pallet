@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/actions/auth.action";
-import { createGalleryItem, getAllGalleryItems, getGalleryItemById, updateGalleryItem, deleteGalleryItem, GalleryItem } from "@/lib/db/gallery.repository";
+import { createGalleryItem, getAllGalleryItems, getGalleryItemById, GalleryItem } from "@/lib/db/gallery.repository";
 import { handleApiError, ErrorType } from "@/lib/utils/error-handler";
+import { sendNewPhotoNotification } from "@/lib/email";
 
 // Admin emails for authorization
 const ADMIN_EMAILS = [process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@example.com"];
@@ -28,7 +29,10 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     const tag = searchParams.get('tag') || undefined;
     const color = searchParams.get('color') || undefined;
-    const orientation = searchParams.get('orientation') || undefined;
+    const orientationParam = searchParams.get('orientation');
+    const orientation = orientationParam && ['horizontal', 'vertical', 'square'].includes(orientationParam) 
+      ? orientationParam as 'horizontal' | 'vertical' | 'square' 
+      : undefined;
     
     // Get gallery items
     const items = await getAllGalleryItems({ limit, tag, color, orientation });
@@ -53,10 +57,11 @@ export async function POST(request: NextRequest) {
     
     // Parse request body
     const data = await request.json();
+    const { notifySubscribers, ...galleryData } = data;
     
     // Validate required fields
     const requiredFields = ['src', 'alt', 'title', 'description', 'tags', 'height', 'orientation', 'color', 'gridSize'];
-    const missingFields = requiredFields.filter(field => !data[field]);
+    const missingFields = requiredFields.filter(field => !galleryData[field]);
     
     if (missingFields.length > 0) {
       return NextResponse.json(
@@ -69,7 +74,32 @@ export async function POST(request: NextRequest) {
     }
     
     // Create gallery item
-    const item = await createGalleryItem(data);
+    const item = await createGalleryItem(galleryData);
+    
+    // Send email notifications if requested
+    if (notifySubscribers) {
+      try {
+        // Get subscriber emails (you can replace this with actual subscriber data from your database)
+        const subscriberEmails = [
+          process.env.NOTIFICATION_EMAIL_1,
+          process.env.NOTIFICATION_EMAIL_2,
+          process.env.NOTIFICATION_EMAIL_3,
+        ].filter((email): email is string => Boolean(email)); // Remove any undefined emails
+        
+        if (subscriberEmails.length > 0) {
+          await sendNewPhotoNotification(subscriberEmails, {
+            email: subscriberEmails[0], // The function expects this field but it's not used for multiple recipients
+            title: item.title,
+            description: item.description,
+            url: item.src,
+            tags: Array.isArray(item.tags) ? item.tags : [item.tags],
+          });
+        }
+      } catch (emailError) {
+        // Log email error but don't fail the gallery item creation
+        console.error('Failed to send email notifications:', emailError);
+      }
+    }
     
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
@@ -78,27 +108,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/gallery/:id - Get a specific gallery item
-export async function GET_ITEM(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const { id } = params;
-    
-    // Get gallery item
-    const item = await getGalleryItemById(id);
-    
-    if (!item) {
-      return NextResponse.json(
-        { type: ErrorType.NOT_FOUND, message: "Gallery item not found" },
-        { status: 404 }
-      );
-    }
-    
-    return NextResponse.json(item);
-  } catch (error) {
-    const { status, body } = handleApiError(error);
-    return NextResponse.json(body, { status });
-  }
-}
 
 // Note: This PUT endpoint should be in [id]/route.ts, not here
 // Keeping this commented out to avoid confusion

@@ -21,9 +21,9 @@ async function isAdmin() {
 }
 
 // GET /api/gallery/:id - Get a specific gallery item
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     // Get gallery item
     const item = await getGalleryItemById(id);
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT /api/gallery/:id - Update a gallery item (admin only)
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check if user is admin
     if (!(await isAdmin())) {
@@ -53,7 +53,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       );
     }
     
-    const { id } = params;
+    const { id } = await params;
     const data = await request.json();
     
     // Check if item exists
@@ -76,7 +76,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE /api/gallery/:id - Delete a gallery item (admin only)
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check if user is admin
     if (!(await isAdmin())) {
@@ -86,7 +86,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       );
     }
     
-    const { id } = params;
+    const { id } = await params;
     
     // Check if item exists
     const existingItem = await getGalleryItemById(id);

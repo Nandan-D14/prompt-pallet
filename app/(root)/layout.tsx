@@ -2,12 +2,18 @@
 
 import { ReactNode } from "react";
 import { SideBar } from "@/components/SideNav";
+import Footer from "@/components/ui/Footer";
 
 const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div>
+    <div className="min-h-screen">
       <SideBar>
-        {children}
+        <div className="flex flex-col min-h-screen">
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
+        </div>
       </SideBar>
     </div>
   );

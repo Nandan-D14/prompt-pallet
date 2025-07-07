@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
 
-const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
+import React, { useState } from "react";
+import { geminiService } from '@/lib/gemini-service';
 
 const EXAMPLES = [
   "Make the background sunset-themed without changing the person’s face.",
@@ -25,88 +25,79 @@ const AiPromptUI = () => {
     setError("");
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `You are an expert prompt engineer for image editing. Given a simple user prompt, generate an advanced, detailed prompt for an AI image editor. Ensure the prompt includes instructions to avoid changing human faces or any specifically mentioned product or part. User prompt: "${prompt}"`,
-                  },
-                ],
-              },
-            ],
-          }),
-        }
-      );
+      const response = await geminiService.generatePrompt(prompt);
 
-      const data = await res.json();
-      const result = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
-      setChat((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1].ai = result;
-        return updated;
-      });
-    } catch {
-      setError("Something went wrong. Please try again.");
+      if (response.success && response.prompt) {
+        setChat((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1].ai = response.prompt;
+          return updated;
+        });
+      } else {
+        setError(response.error || "Something went wrong. Please try again.");
+      }
+    } catch (error: any) {
+      setError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="min-h-full bg-black/70 text-white flex flex-col items-center px-4 pt-10 pb-24 relative overflow-hidden font-sans">
-      {/* Glowing Background Blobs */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute w-[30rem] h-[30rem] bg-indigo-500 opacity-[0.08] rounded-full blur-3xl top-[-10%] left-[-10%]" />
-        <div className="absolute w-[20rem] h-[20rem] bg-pink-500 opacity-[0.06] rounded-full blur-3xl bottom-[-10%] right-[-10%]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#05050e] to-transparent z-[-1]" />
+    <div className="min-h-screen bg-white/10 dark:bg-black/10 backdrop-blur-2xl text-white flex flex-col items-center px-4 pt-10 pb-24 relative overflow-hidden font-sans">
+    
+      <div className="mb-8 text-center max-w-xl">
+        <div className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl p-6">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent drop-shadow-lg">
+            AI Prompt Generator
+          </h1>
+          <p className="text-gray-300 text-sm mt-2">
+            Transform simple ideas into vivid AI image prompts.
+          </p>
+        </div>
       </div>
 
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold bg-clip-text absolute top-[-7px] text-transparent bg-gradient-to-r from-indigo-400 to-pink-400 drop-shadow-lg">
-          AI Prompt Assistant
-        </h1>
-        <p className="text-gray-400 text-sm mt-2">
-          Type a simple idea. Get a smart, image-safe prompt.
-        </p>
-      </div>
-
-      {/* Chat Container */}
-      <div className="w-full max-w-4xl p-12 flex-1 overflow-y-auto space-y-6">
+      {/* Prompt History */}
+      <div className="w-full max-w-4xl flex-1 overflow-y-auto space-y-6 p-4">
         {chat.map((entry, index) => (
           <div key={index} className="space-y-2">
-            {/* User bubble */}
             <div className="flex justify-end">
-              <div className="max-w-[80%] bg-gradient-to-br from-indigo-600 to-indigo-800 text-white px-4 py-3 rounded-xl shadow-md">
+              <div className="max-w-[80%] bg-gradient-to-br from-blue-500/80 to-purple-600/80 backdrop-blur-xl border border-white/20 text-white px-6 py-4 rounded-2xl shadow-xl">
                 {entry.user}
               </div>
             </div>
 
-            {/* AI bubble */}
             {entry.ai && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] bg-white/5 backdrop-blur-sm border border-white/10 px-4 py-3 rounded-xl shadow-inner text-gray-100 whitespace-pre-line">
+                <div className="max-w-[85%] bg-white/10 dark:bg-black/10 backdrop-blur-2xl border border-white/10 px-6 py-4 rounded-2xl shadow-xl text-gray-100 whitespace-pre-line">
                   {entry.ai}
                 </div>
               </div>
             )}
           </div>
         ))}
+
         {loading && (
           <div className="flex justify-start">
-            <div className="text-gray-500 animate-pulse">Generating prompt...</div>
+            <div className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl border border-white/10 px-6 py-4 rounded-2xl shadow-xl">
+              <div className="text-blue-400 animate-pulse flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-200"></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-400"></div>
+                <span className="ml-2">Generating prompt...</span>
+              </div>
+            </div>
           </div>
         )}
-        {error && <div className="text-red-400 text-center">{error}</div>}
+
+        {error && (
+          <div className="bg-red-500/10 backdrop-blur-xl border border-red-500/30 rounded-2xl px-6 py-4 text-center shadow-xl">
+            <div className="text-red-400 text-sm">{error}</div>
+          </div>
+        )}
       </div>
 
-      {/* Input + Send */}
+      {/* Prompt Input */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -114,11 +105,11 @@ const AiPromptUI = () => {
         }}
         className="fixed bottom-6 w-full max-w-2xl px-4"
       >
-        <div className="flex items-center gap-2 bg-[#1e1e25] border border-white/10 px-4 py-3 rounded-xl shadow-md">
+        <div className="flex items-center gap-3 bg-white/10 dark:bg-black/80 backdrop-blur-2xl border border-white/20 px-6 py-4 rounded-2xl shadow-7xl">
           <input
             type="text"
-            className="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none"
-            placeholder="Describe an edit like 'Add rain in the background but keep face unchanged'"
+            className="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none text-sm"
+            placeholder="Describe what you want to create (e.g., 'A futuristic city under a purple sky')"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
@@ -126,21 +117,21 @@ const AiPromptUI = () => {
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2 rounded-xl transition-all duration-300 font-medium shadow-lg hover:scale-105"
           >
-            Send
+            Generate
           </button>
         </div>
-        {/* Examples */}
-        <div className="text-xs text-gray-500 mt-3">
-          Try:{" "}
+        {/* Example Prompts */}
+        <div className="text-xs text-gray-400 mt-4 text-center">
+          <span className="text-gray-500">Try: </span>
           {EXAMPLES.map((ex, i) => (
             <span
               key={i}
               onClick={() => setInput(ex)}
-              className="underline cursor-pointer hover:text-indigo-300 mr-2"
+              className="underline cursor-pointer hover:text-blue-400 transition duration-200 mx-1"
             >
-              {ex}
+              "{ex}"
             </span>
           ))}
         </div>

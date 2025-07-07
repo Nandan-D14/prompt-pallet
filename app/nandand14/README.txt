@@ -1,1 +1,0 @@
-This folder previously contained the admin-gallery-upload.tsx file, which has now been moved to /app/(root)/admin-gallery-upload.tsx for correct routing. You may delete this folder if it is no longer needed.

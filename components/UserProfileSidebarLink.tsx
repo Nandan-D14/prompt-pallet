@@ -7,14 +7,29 @@ export function UserProfileSidebarLink() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    let unsubscribe: any;
+    const fetchUser = async (firebaseUser: any) => {
+      if (!firebaseUser) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
       try {
-        const res = await fetch("/api/me");
+        const res = await fetch("/api/me", { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
-          setUser(data);
-          // Trigger a custom event to notify other components about user data update
-          window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: data }));
+          
+          // Enhance user data with Firebase user info if available
+          const enhancedUserData = {
+            ...data,
+            // Use Google profile photo if no custom avatar is set
+            avatarUrl: data.avatarUrl || (firebaseUser.photoURL && !data.avatarUrl ? firebaseUser.photoURL : data.avatarUrl) || '',
+            // Use Firebase display name if no name is set
+            name: data.name || firebaseUser.displayName || data.email?.split('@')[0] || 'User'
+          };
+          
+          setUser(enhancedUserData);
+          window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: enhancedUserData }));
         } else {
           setUser(null);
         }
@@ -24,13 +39,31 @@ export function UserProfileSidebarLink() {
         setLoading(false);
       }
     };
-    fetchUser();
-    // Listen for auth changes and refetch user
-    const { auth } = require("@/firebase/client");
-    const unsubscribe = auth.onAuthStateChanged(() => {
-      fetchUser();
+    
+    import("@/firebase/client").then(({ auth }) => {
+      unsubscribe = auth.onAuthStateChanged((firebaseUser: any) => {
+        fetchUser(firebaseUser);
+      });
     });
-    return () => unsubscribe();
+    
+    // Listen for user data updates from other components
+    const handleUserDataUpdated = (event: CustomEvent) => {
+      setUser(event.detail);
+      setLoading(false);
+    };
+    
+    window.addEventListener(
+      "userDataUpdated",
+      handleUserDataUpdated as EventListener
+    );
+    
+    return () => {
+      if (unsubscribe) unsubscribe();
+      window.removeEventListener(
+        "userDataUpdated",
+        handleUserDataUpdated as EventListener
+      );
+    };
   }, []);
 
   const handleClick = (e: React.MouseEvent) => {

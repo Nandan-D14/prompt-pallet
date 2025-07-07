@@ -29,40 +29,41 @@ export async function signUp(params: SignUpParams) {
   const { uid, name, email } = params;
 
   try {
-    // check if user exists in db
-    const userRecord = await db.collection("users").doc(uid).get();
-    if (userRecord.exists)
-      return {
-        success: false,
-        message: "User already exists. Please sign in.",
-      };
+    console.log("Attempting to sign up user:", email, "with uid:", uid);
+    
+    // Check if user is admin based on email
+    const ADMIN_EMAILS = [process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@example.com"];
+    const isAdmin = ADMIN_EMAILS.includes(email);
+    console.log("Admin check for", email, ":", isAdmin, "(Admin emails:", ADMIN_EMAILS, ")");
 
-    // save user to db
-    await db.collection("users").doc(uid).set({
+    // save user to db (create or update)
+    const userData = {
       name,
       email,
-      // profileURL,
-      // resumeURL,
-    });
-
+      about: "",
+      isAdmin,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      avatarUrl: "",
+      savedPhotos: 0,
+      savedPhotosList: [],
+      likedPhotos: []
+    };
+    
+    console.log("Saving user data to Firestore:", userData);
+    await db.collection("users").doc(uid).set(userData, { merge: true });
+    
+    console.log("User successfully created in Firestore:", email);
     return {
       success: true,
-      message: "Account created successfully. Please sign in.",
+      message: "Account created successfully.",
     };
   } catch (error: any) {
     console.error("Error creating user:", error);
 
-    // Handle Firebase specific errors
-    if (error.code === "auth/email-already-exists") {
-      return {
-        success: false,
-        message: "This email is already in use",
-      };
-    }
-
     return {
       success: false,
-      message: "Failed to create account. Please try again.",
+      message: error.message || "Failed to create account. Please try again.",
     };
   }
 }
@@ -71,15 +72,21 @@ export async function signIn(params: SignInParams) {
   const { email, idToken } = params;
 
   try {
+    console.log("Attempting to sign in user:", email);
+    
     const userRecord = await auth.getUserByEmail(email);
-    if (!userRecord)
+    if (!userRecord) {
+      console.log("User not found in Firebase Auth:", email);
       return {
         success: false,
         message: "User does not exist. Create an account.",
       };
+    }
 
+    console.log("User found, setting session cookie...");
     await setSessionCookie(idToken);
     
+    console.log("Session cookie set successfully for:", email);
     return {
       success: true,
       message: "Successfully logged in."
@@ -124,14 +131,26 @@ export async function getCurrentUser(): Promise<User | null> {
     // Get user data
     const userData = userRecord.data();
     
-    // Check if user is admin based on email
+    // Check if user is admin based on email or stored isAdmin field
     const ADMIN_EMAILS = [process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@example.com"];
-    const isAdmin = ADMIN_EMAILS.includes(userData?.email ?? "");
+    const isAdmin = userData?.isAdmin === true || ADMIN_EMAILS.includes(userData?.email ?? "");
+    
+    console.log("Admin check details:", {
+      userEmail: userData?.email,
+      adminEmails: ADMIN_EMAILS,
+      storedIsAdmin: userData?.isAdmin,
+      finalIsAdmin: isAdmin
+    });
     
     return {
       ...userData,
       id: userRecord.id,
       isAdmin,
+      savedPhotos: userData?.savedPhotos || 0,
+      savedPhotosList: userData?.savedPhotosList || [],
+      likedPhotos: userData?.likedPhotos || [],
+      about: userData?.about || "",
+      avatarUrl: userData?.avatarUrl || "",
     } as User;
   } catch (error: any) {
     console.error("Session verification error:", error.message);

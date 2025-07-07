@@ -643,19 +643,7 @@
       color: "green",
       gridSize: "wide",
     },
-    {
-      id: "q23",
-      src: "https://images.pexels.com/photos/5409751/pexels-photo-5409751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      alt: "A cloudy Mountain Image",
-      title: "Cloudy Mountain",
-      description: "Majestic mountains shrouded in mystical clouds.",
-      tags: ["Nature", "Mountain", "Clouds"],
-      height: 750,
-      likes: 95,
-      prompt:
-        "A dramatic view of a mountain peak partially obscured by swirling clouds.",
-      orientation: "horizontal",
-      color: "gray",
-      gridSize: "normal",
-    },
   ];
+
+  
+   

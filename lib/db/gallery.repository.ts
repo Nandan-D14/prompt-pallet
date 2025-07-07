@@ -5,10 +5,10 @@
 
 import { db } from '@/firebase/admin';
 import { executeDbOperation, executeBatch } from './connection';
-import { serverTimestamp } from 'firebase-admin/firestore';
+import { FieldValue } from 'firebase-admin/firestore';
 
-// Define the GalleryItem interface
-export interface GalleryItem {
+// FormData as the core data model
+export interface FormData {
   id?: string;
   src: string;
   alt: string;
@@ -18,11 +18,15 @@ export interface GalleryItem {
   height: number;
   likes: number;
   prompt: string;
-  orientation: 'horizontal' | 'vertical' | 'square';
-  color: string;
-  gridSize: 'normal' | 'large' | 'wide';
-  createdAt?: any; // Firestore timestamp
-  updatedAt?: any; // Firestore timestamp
+  orientation: "horizontal" | "vertical" | "square";
+  color: "blue" | "green" | "red" | "yellow" | "orange" | "purple" | "brown" | "gray" | "white" | "black" | "dark";
+  gridSize: "normal" | "wide" | "large" | "small" | "square";
+}
+
+// Add createdAt and updatedAt for Firestore
+export interface GalleryItem extends FormData {
+  createdAt?: FirebaseFirestore.Timestamp;
+  updatedAt?: FirebaseFirestore.Timestamp;
 }
 
 /**
@@ -32,50 +36,44 @@ export async function getAllGalleryItems(options?: {
   limit?: number;
   tag?: string;
   color?: string;
-  orientation?: string;
-}) {
+  orientation?: "horizontal" | "vertical" | "square";
+}): Promise<GalleryItem[]> {
   return executeDbOperation(async () => {
-    let query = db.collection('gallery');
-    
-    // Apply filters if provided
+    let query: FirebaseFirestore.Query = db.collection('gallery');
+
     if (options?.tag) {
-      query = query.where('tags', 'array-contains', options.tag) as any;
+      query = query.where('tags', 'array-contains', options.tag); // match array element
     }
+
     if (options?.color) {
-      query = query.where('color', '==', options.color) as any;
+      query = query.where('color', '==', options.color);
     }
-    
+
     if (options?.orientation) {
-      query = query.where('orientation', '==', options.orientation) as any;
+      query = query.where('orientation', '==', options.orientation);
     }
-    
-    // Apply sorting and pagination
-    query = query.orderBy('createdAt', 'desc') as any;
-    
+
+    query = query.orderBy('createdAt', 'desc');
+
     if (options?.limit) {
-      query = query.limit(options.limit) as any;
+      query = query.limit(options.limit);
     }
-    
+
     const snapshot = await query.get();
-    
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    })) as GalleryItem[];
+    } as GalleryItem));
   });
 }
 
 /**
  * Get a gallery item by ID
  */
-export async function getGalleryItemById(id: string) {
+export async function getGalleryItemById(id: string): Promise<GalleryItem | null> {
   return executeDbOperation(async () => {
     const doc = await db.collection('gallery').doc(id).get();
-    
-    if (!doc.exists) {
-      return null;
-    }
-    
+    if (!doc.exists) return null;
     return {
       id: doc.id,
       ...doc.data()
@@ -86,35 +84,39 @@ export async function getGalleryItemById(id: string) {
 /**
  * Create a new gallery item
  */
-export async function createGalleryItem(item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>) {
+export async function createGalleryItem(
+  item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<GalleryItem> {
   return executeDbOperation(async () => {
     const docRef = await db.collection('gallery').add({
       ...item,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
     });
-    
+
     return {
       id: docRef.id,
       ...item
-    } as GalleryItem;
+    };
   });
 }
 
 /**
  * Update an existing gallery item
  */
-export async function updateGalleryItem(id: string, item: Partial<Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>>) {
+export async function updateGalleryItem(
+  id: string,
+  item: Partial<Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>>
+): Promise<GalleryItem> {
   return executeDbOperation(async () => {
     const docRef = db.collection('gallery').doc(id);
-    
+
     await docRef.update({
       ...item,
-      updatedAt: serverTimestamp()
+      updatedAt: FieldValue.serverTimestamp()
     });
-    
+
     const updatedDoc = await docRef.get();
-    
     return {
       id: updatedDoc.id,
       ...updatedDoc.data()
@@ -125,7 +127,7 @@ export async function updateGalleryItem(id: string, item: Partial<Omit<GalleryIt
 /**
  * Delete a gallery item
  */
-export async function deleteGalleryItem(id: string) {
+export async function deleteGalleryItem(id: string): Promise<boolean> {
   return executeDbOperation(async () => {
     await db.collection('gallery').doc(id).delete();
     return true;
@@ -135,13 +137,15 @@ export async function deleteGalleryItem(id: string) {
 /**
  * Batch update multiple gallery items
  */
-export async function batchUpdateGalleryItems(updates: Array<{ id: string, data: Partial<GalleryItem> }>) {
+export async function batchUpdateGalleryItems(
+  updates: Array<{ id: string; data: Partial<GalleryItem> }>
+): Promise<void> {
   return executeBatch((batch) => {
     updates.forEach(({ id, data }) => {
       const docRef = db.collection('gallery').doc(id);
       batch.update(docRef, {
         ...data,
-        updatedAt: serverTimestamp()
+        updatedAt: FieldValue.serverTimestamp()
       });
     });
   });

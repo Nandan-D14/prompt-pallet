@@ -9,12 +9,17 @@ const ADMIN_EMAILS = [process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@example.com"
 
 export default function AdminGalleryManage() {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [editItem, setEditItem] = useState<GalleryItem | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTag, setFilterTag] = useState("all");
+  const [filterColor, setFilterColor] = useState("all");
+  const [filterOrientation, setFilterOrientation] = useState("all");
   const router = useRouter();
   
   useEffect(() => {
@@ -64,8 +69,36 @@ export default function AdminGalleryManage() {
   useEffect(() => {
     if (isAdmin) {
       fetchGalleryItems();
+      
+      // Check for edit query parameter
+      const params = new URLSearchParams(window.location.search);
+      const editId = params.get('edit');
+      
+      if (editId) {
+        fetchItemForEdit(editId);
+      }
     }
   }, [isAdmin]);
+  
+  // Fetch a specific item for editing
+  const fetchItemForEdit = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/gallery/${id}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch gallery item');
+      }
+      
+      const item = await response.json();
+      setEditItem(item);
+    } catch (err: any) {
+      logError(err, "Fetching gallery item for edit");
+      setError(`Error fetching item: ${err.message || "Unknown error"}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchGalleryItems = async () => {
     try {
@@ -76,6 +109,7 @@ export default function AdminGalleryManage() {
       }
       const data = await response.json();
       setGalleryItems(data);
+      setFilteredItems(data);
     } catch (err: any) {
       logError(err, "Fetching gallery items");
       setError(`Error fetching gallery items: ${err.message || "Unknown error"}`);
@@ -102,7 +136,9 @@ export default function AdminGalleryManage() {
       
       setSuccess("Item deleted successfully!");
       // Remove the deleted item from the state
-      setGalleryItems(galleryItems.filter(item => item.id !== id));
+      const updatedItems = galleryItems.filter(item => item.id !== id);
+      setGalleryItems(updatedItems);
+      setFilteredItems(updatedItems.filter(applyFilters));
       setTimeout(() => setSuccess(""), 3000);
     } catch (err: any) {
       logError(err, "Deleting gallery item");
@@ -160,9 +196,11 @@ export default function AdminGalleryManage() {
       const updatedItem = await response.json();
       
       // Update the item in the state
-      setGalleryItems(galleryItems.map(item => 
+      const updatedItems = galleryItems.map(item => 
         item.id === updatedItem.id ? updatedItem : item
-      ));
+      );
+      setGalleryItems(updatedItems);
+      setFilteredItems(updatedItems.filter(applyFilters));
       
       setSuccess("Item updated successfully!");
       setEditItem(null);
@@ -176,6 +214,30 @@ export default function AdminGalleryManage() {
     }
   };
 
+  // Filter logic
+  const applyFilters = (item: GalleryItem) => {
+    const matchesSearch = !searchQuery || 
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesTag = filterTag === "all" || item.tags.includes(filterTag);
+    const matchesColor = filterColor === "all" || item.color === filterColor;
+    const matchesOrientation = filterOrientation === "all" || item.orientation === filterOrientation;
+    
+    return matchesSearch && matchesTag && matchesColor && matchesOrientation;
+  };
+
+  // Apply filters whenever search or filter values change
+  useEffect(() => {
+    const filtered = galleryItems.filter(applyFilters);
+    setFilteredItems(filtered);
+  }, [searchQuery, filterTag, filterColor, filterOrientation, galleryItems]);
+
+  // Get unique values for filter options
+  const allTags = Array.from(new Set(galleryItems.flatMap(item => item.tags)));
+  const allColors = Array.from(new Set(galleryItems.map(item => item.color)));
+
   if (checkingAuth) {
     return <div className="text-center text-white mt-10">Checking admin access...</div>;
   }
@@ -185,16 +247,91 @@ export default function AdminGalleryManage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-8 bg-black/80 rounded-xl mt-10">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Admin: Manage Gallery</h2>
-        <button 
-          onClick={() => router.push('/admin-gallery-upload')} 
-          className="bg-blue-600 text-white py-2 px-4 rounded font-bold hover:bg-blue-700 transition"
-        >
-          Upload New Photo
-        </button>
-      </div>
+    <div className="min-h-screen bg-black/20 backdrop-blur-3xl text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl p-8 mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent">
+                Admin: Gallery Management
+              </h1>
+              <p className="text-gray-300 mt-2">Manage your gallery images with search, filter, and edit capabilities</p>
+            </div>
+            <button 
+              onClick={() => router.push('/admin-gallery-upload')} 
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+            >
+              Upload New Photo
+            </button>
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-white">Search & Filter</h2>
+          
+          {/* Search Bar */}
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Search by title, description, or tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 bg-black/20 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          
+          {/* Filter Options */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Filter by Tag</label>
+              <select
+                value={filterTag}
+                onChange={(e) => setFilterTag(e.target.value)}
+                className="w-full px-4 py-3 bg-black/20 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all" className="bg-gray-900">All Tags</option>
+                {allTags.map(tag => (
+                  <option key={tag} value={tag} className="bg-gray-900">{tag}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Filter by Color</label>
+              <select
+                value={filterColor}
+                onChange={(e) => setFilterColor(e.target.value)}
+                className="w-full px-4 py-3 bg-black/20 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all" className="bg-gray-900">All Colors</option>
+                {allColors.map(color => (
+                  <option key={color} value={color} className="bg-gray-900">{color}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Filter by Orientation</label>
+              <select
+                value={filterOrientation}
+                onChange={(e) => setFilterOrientation(e.target.value)}
+                className="w-full px-4 py-3 bg-black/20 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all" className="bg-gray-900">All Orientations</option>
+                <option value="horizontal" className="bg-gray-900">Horizontal</option>
+                <option value="vertical" className="bg-gray-900">Vertical</option>
+                <option value="square" className="bg-gray-900">Square</option>
+              </select>
+            </div>
+          </div>
+          
+          {/* Results Count */}
+          <div className="mt-4 text-sm text-gray-300">
+            Showing {filteredItems.length} of {galleryItems.length} items
+          </div>
+        </div>
       
       {success && <div className="bg-green-600/80 text-white p-4 rounded mb-4">{success}</div>}
       {error && <div className="bg-red-600/80 text-white p-4 rounded mb-4">{error}</div>}
@@ -353,67 +490,78 @@ export default function AdminGalleryManage() {
           </form>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          {loading && <div className="text-center text-neutral-300 my-4">Loading gallery items...</div>}
+        <div className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
+          {loading && <div className="text-center text-gray-300 py-8">Loading gallery items...</div>}
           
-          {galleryItems.length === 0 && !loading ? (
-            <div className="text-center text-neutral-300 my-8">No gallery items found.</div>
+          {filteredItems.length === 0 && !loading ? (
+            <div className="text-center text-gray-300 py-12">
+              {galleryItems.length === 0 ? "No gallery items found." : "No items match your search criteria."}
+            </div>
           ) : (
-            <table className="w-full text-left text-neutral-200">
-              <thead className="text-xs uppercase bg-neutral-800 text-neutral-400">
-                <tr>
-                  <th className="px-4 py-3">Image</th>
-                  <th className="px-4 py-3">Title</th>
-                  <th className="px-4 py-3">Description</th>
-                  <th className="px-4 py-3">Tags</th>
-                  <th className="px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {galleryItems.map((item) => (
-                  <tr key={item.id} className="border-b border-neutral-800 bg-neutral-900/50 hover:bg-neutral-800/70 transition">
-                    <td className="px-4 py-3">
-                      <img 
-                        src={item.src} 
-                        alt={item.alt} 
-                        className="w-16 h-16 object-cover rounded" 
-                      />
-                    </td>
-                    <td className="px-4 py-3">{item.title}</td>
-                    <td className="px-4 py-3 max-w-xs truncate">{item.description}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {item.tags.slice(0, 3).map((tag, index) => (
-                          <span key={index} className="text-xs px-2 py-1 bg-neutral-800 rounded-full">{tag}</span>
-                        ))}
-                        {item.tags.length > 3 && (
-                          <span className="text-xs px-2 py-1 bg-neutral-800 rounded-full">+{item.tags.length - 3}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => handleEdit(item)} 
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition"
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(item.id!)} 
-                          className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-white">
+                <thead className="bg-black/20 backdrop-blur-xl">
+                  <tr>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Image</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Description</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Tags</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
                   </tr>
+                </thead>
+                <tbody>
+                  {filteredItems.map((item) => (
+                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/5 transition-all duration-300">
+                      <td className="px-6 py-4">
+                        <img 
+                          src={item.src} 
+                          alt={item.alt} 
+                          className="w-20 h-20 object-cover rounded-xl shadow-lg" 
+                        />
+                      </td>
+                      <td className="px-6 py-4 font-medium">{item.title}</td>
+                      <td className="px-6 py-4 max-w-xs">
+                        <div className="truncate text-gray-300">{item.description}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {item.tags.slice(0, 3).map((tag, index) => (
+                            <span key={index} className="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full border border-blue-500/30">
+                              {tag}
+                            </span>
+                          ))}
+                          {item.tags.length > 3 && (
+                            <span className="text-xs px-2 py-1 bg-gray-500/20 text-gray-300 rounded-full border border-gray-500/30">
+                              +{item.tags.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleEdit(item)} 
+                            className="px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-xl border border-blue-500/30 text-sm font-medium transition-all duration-300 hover:scale-105"
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(item.id!)} 
+                            className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-xl border border-red-500/30 text-sm font-medium transition-all duration-300 hover:scale-105"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                 ))}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,7 @@
 'use client';
 import { setDoc, doc } from 'firebase/firestore';
 import React, { useState, useRef } from 'react';
-
-// ...existing code...
+import { firebaseToast } from '@/lib/utils/toast';
 
 const ProfilePage = () => {
   const [user, setUser] = useState<any>(null);
@@ -11,51 +10,69 @@ const ProfilePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    // Fetch user details from server
     const fetchUser = async () => {
       try {
-        const res = await fetch('/api/me');
+        const res = await fetch('/api/me', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
-          // Add saved photos count from localStorage
           let saved = [];
           try {
             saved = JSON.parse(localStorage.getItem("savedPhotos") || "[]");
-          } catch (parseError) {
-            console.error("Error parsing saved photos:", parseError);
-            // Reset saved photos if corrupted
+          } catch {
             localStorage.setItem("savedPhotos", "[]");
           }
-          const userData = { ...data, savedPhotos: saved.length, savedPhotosList: saved };
-          setUser(userData);
-          setForm({ name: data.name || '', about: data.about || '' });
           
-          // Dispatch event to update other components
+          // Get current Firebase user for additional profile data
+          const { auth } = await import("@/firebase/client");
+          const currentUser = auth.currentUser;
+          
+          const userData = { 
+            ...data, 
+            savedPhotos: saved.length, 
+            savedPhotosList: saved,
+            // Use Google profile photo if available and no custom avatar is set
+            avatarUrl: data.avatarUrl || (currentUser?.photoURL && !data.avatarUrl ? currentUser.photoURL : data.avatarUrl) || ''
+          };
+          
+          setUser(userData);
+          setForm({ 
+            name: data.name || currentUser?.displayName || '', 
+            about: data.about || '' 
+          });
           window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: userData }));
         } else {
-          const errorData = await res.json().catch(() => ({ message: 'Failed to fetch user data' }));
-          console.error('User fetch error:', errorData);
           setUser(null);
         }
-      } catch (e) {
-        console.error('Profile data fetch error:', e);
+      } catch (error) {
+        console.error('Error fetching user:', error);
         setUser(null);
       }
     };
-    fetchUser();
     
-    // Listen for auth changes and localStorage changes
-    const { auth } = require("@/firebase/client");
-    const unsubscribe = auth.onAuthStateChanged(() => {
-      fetchUser();
+    fetchUser();
+
+    const setupAuthListener = async () => {
+      const { auth } = await import("@/firebase/client");
+      const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+        if (firebaseUser) {
+          fetchUser();
+        } else {
+          setUser(null);
+        }
+      });
+      return unsubscribe;
+    };
+    
+    let unsubscribe: (() => void) | null = null;
+    setupAuthListener().then(unsub => {
+      unsubscribe = unsub;
     });
     
-    const onStorage = () => fetchUser();
-    window.addEventListener("storage", onStorage);
-    
+    window.addEventListener("storage", fetchUser);
+
     return () => {
-      unsubscribe();
-      window.removeEventListener("storage", onStorage);
+      if (unsubscribe) unsubscribe();
+      window.removeEventListener("storage", fetchUser);
     };
   }, []);
 
@@ -63,11 +80,8 @@ const ProfilePage = () => {
     const updatedUser = { ...user, ...form };
     setUser(updatedUser);
     setEditing(false);
-    
-    // Dispatch event to update other components
     window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: updatedUser }));
-    
-    // Save name, about, and savedPhotos to Firestore
+
     try {
       const { getAuth } = await import("firebase/auth");
       const { db } = await import("@/firebase/client");
@@ -79,26 +93,27 @@ const ProfilePage = () => {
           name: form.name,
           about: form.about,
           email: currentUser.email,
+          avatarUrl: updatedUser.avatarUrl || '',
           savedPhotos: saved.length,
           savedPhotosList: saved,
           updatedAt: new Date(),
         }, { merge: true });
-        
-        // Also update server-side data
+
         await fetch('/api/me', {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: form.name,
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ 
+            name: form.name, 
             about: form.about,
+            avatarUrl: updatedUser.avatarUrl
           }),
         });
+
+        firebaseToast.saveSuccess();
       }
     } catch (e) {
-      console.error("Error saving profile:", e);
-      alert("Failed to save profile changes. Please try again.");
+      firebaseToast.saveError(e);
     }
   };
 
@@ -107,42 +122,46 @@ const ProfilePage = () => {
     setEditing(false);
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setUser((prev: any) => ({ ...prev, avatarUrl: url }));
+      // Create a temporary URL for immediate display
+      const tempUrl = URL.createObjectURL(file);
+      
+      // Update UI immediately
+      const updatedUser = { ...user, avatarUrl: tempUrl };
+      setUser(updatedUser);
+      
+      // Dispatch event to update sidebar
+      window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: updatedUser }));
+      
+      // In a real app, you would upload the file to storage and get the permanent URL
+      // For now, we'll just use the temporary URL
+      try {
+        // TODO: Implement actual file upload to Firebase Storage
+        // const permanentUrl = await uploadImageToStorage(file);
+        // setUser(prev => ({ ...prev, avatarUrl: permanentUrl }));
+        console.log('Avatar updated locally. Implement storage upload for persistence.');
+      } catch (error) {
+        console.error('Error updating avatar:', error);
+      }
     }
   };
 
   const handleLogout = async () => {
     try {
-      // Call the signOut server action
-      const response = await fetch('/api/auth/signout', {
+      await fetch('/api/auth/signout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Logout error:', errorData);
-        // Still redirect to sign-in page even if there's an error
-      }
-      
-      // Redirect to sign-in page
-      window.location.href = '/sign-in';
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Still redirect to sign-in page even if there's an error
-      window.location.href = '/sign-in';
-    }
+    } catch {}
+    window.location.href = '/sign-in';
   };
 
   const handleDelete = () => {
     if (confirm('Are you sure you want to delete your account?')) {
-      alert('Account deleted (simulate)');
+      firebaseToast.info("Account deletion feature coming soon!");
     }
   };
 
@@ -158,112 +177,110 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className=" overflow-hidden bg-black/90 text-white py-12 px-4 relative">
-      {/* Background blobs */}
+    <div className="min-h-screen overflow-hidden py-12 px-4 bg-black text-white relative">
       <div className="absolute inset-0 -z-10">
         <div className="absolute w-96 h-96 bg-purple-500 opacity-10 blur-3xl top-[-80px] left-[-100px]" />
         <div className="absolute w-72 h-72 bg-pink-500 opacity-10 blur-2xl bottom-[-60px] right-[-80px]" />
       </div>
 
-      {/* Header Buttons */}
-      <div className="flex justify-between max-w-4xl mx-auto mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-pink-400 text-transparent bg-clip-text drop-shadow">
-          Your Profile
-        </h1>
-        <button
-          onClick={handleLogout}
-          className="text-sm bg-gray-800 hover:bg-gray-700 border border-gray-600 px-4 py-2 rounded-lg text-white transition"
-        >
-          Log Out
-        </button>
-      </div>
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-pink-400 text-transparent bg-clip-text">
+            Your Profile
+          </h1>
+          <button
+            onClick={handleLogout}
+            className="text-sm border border-white/20 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition"
+          >
+            Log Out
+          </button>
+        </div>
 
-      {/* Profile Card */}
-      <div className="max-w-4xl mx-auto bg-black/70 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-8 space-y-6">
-        <div className="flex items-center gap-6">
-          <div className="relative group">
-            <img
-              src={user.avatarUrl || '/profile-avatar.png'}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full border-2 border-gray-600 object-cover"
-            />
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleAvatarChange}
-              className="hidden"
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 bg-indigo-600 px-2 py-1 text-xs rounded group-hover:opacity-100 opacity-0 transition"
-            >
-              Change
-            </button>
+        {/* Profile Card */}
+        <div className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl p-8 space-y-6">
+          <div className="flex items-center gap-6">
+            <div className="relative group">
+              <img
+                src={user.avatarUrl || '/profile-avatar.png'}
+                alt="Avatar"
+                className="w-24 h-24 rounded-full border border-white/20 object-cover"
+              />
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-0 right-0 text-xs px-2 py-1 rounded bg-indigo-500 group-hover:opacity-100 opacity-0 transition"
+              >
+                Change
+              </button>
+            </div>
+
+            <div className="flex-1">
+              {editing ? (
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full bg-white/5 border border-white/20 text-white px-4 py-2 rounded"
+                />
+              ) : (
+                <h2 className="text-2xl font-semibold">{user.name}</h2>
+              )}
+              <p className="text-sm text-gray-400">{user.email}</p>
+              <p className="text-xs text-indigo-400 mt-1">{user.savedPhotos} Saved Photos</p>
+            </div>
           </div>
 
-          <div className="flex-1">
+          <div>
+            <h3 className="text-lg font-semibold mb-2">About</h3>
             {editing ? (
-              <input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="bg-gray-800 border border-gray-600 text-white px-4 py-2 rounded w-full"
+              <textarea
+                rows={4}
+                value={form.about}
+                onChange={(e) => setForm({ ...form, about: e.target.value })}
+                className="w-full bg-white/5 border border-white/20 text-white p-3 rounded resize-none"
               />
             ) : (
-              <h2 className="text-2xl font-semibold">{user.name}</h2>
-            )}
-            <p className="text-gray-400 text-sm mt-1">{user.email}</p>
-            <p className="text-indigo-400 text-xs mt-1">
-              {user.savedPhotos} Saved Photos
-            </p>
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-semibold mb-2 text-white">About</h3>
-          {editing ? (
-            <textarea
-              rows={4}
-              value={form.about}
-              onChange={(e) => setForm({ ...form, about: e.target.value })}
-              className="w-full bg-gray-800 border border-gray-600 text-white p-3 rounded resize-none"
-            />
-          ) : (
-            <p className="text-gray-300">{user.about}</p>
-          )}
-        </div>
-
-        <div className="flex justify-between items-center pt-4 border-t border-gray-700">
-          <div className="flex gap-3">
-            {!editing ? (
-              <button
-                onClick={() => setEditing(true)}
-                className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded text-white text-sm font-semibold"
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleSave}
-                  className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white text-sm"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-white text-sm"
-                >
-                  Cancel
-                </button>
-              </>
+              <p className="text-gray-300">{user.about}</p>
             )}
           </div>
-          <button
-            onClick={handleDelete}
-            className="text-red-500 text-sm hover:underline"
-          >
-            Delete Account
-          </button>
+
+          <div className="flex justify-between items-center border-t border-white/10 pt-4">
+            <div className="flex gap-3">
+              {!editing ? (
+                <button
+                  onClick={() => setEditing(true)}
+                  className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded text-sm"
+                >
+                  Edit Profile
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSave}
+                    className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+            <button
+              onClick={handleDelete}
+              className="text-red-500 text-sm hover:underline"
+            >
+              Delete Account
+            </button>
+          </div>
         </div>
       </div>
     </div>
