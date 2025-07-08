@@ -3,16 +3,33 @@ import { getAuth } from "firebase-admin/auth"
 import { getFirestore } from "firebase-admin/firestore";
 
 const initFirebaseAdmin = () => {
-    const app = getApps()
+    const apps = getApps()
 
-    if (!app.length) {
+    if (!apps.length) {
+        // Validate required environment variables
+        const requiredEnvVars = {
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY,
+        };
+
+        const missingVars = Object.entries(requiredEnvVars)
+            .filter(([, value]) => !value)
+            .map(([key]) => key);
+
+        if (missingVars.length > 0) {
+            throw new Error(`Missing required Firebase Admin environment variables: ${missingVars.join(', ')}`);
+        }
+
+        console.log('Initializing Firebase Admin with project:', requiredEnvVars.projectId);
+        
         initializeApp({
             credential: cert({
-                projectId: process.env.FIREBASE_PROJECT_ID,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+                projectId: requiredEnvVars.projectId,
+                clientEmail: requiredEnvVars.clientEmail,
+                privateKey: requiredEnvVars.privateKey.replace(/\\n/g, '\n'),
             }),
-            databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`
+            databaseURL: `https://${requiredEnvVars.projectId}.firebaseio.com`
         })
     }
     return {

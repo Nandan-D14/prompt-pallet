@@ -36,7 +36,7 @@ const PUBLIC_PATHS = [
 // Define API paths that don't need to check authentication in middleware
 // (they will handle auth checks internally)
 const API_PATHS = [
-  '/api/',
+  '/api',
 ];
 
 export async function middleware(request: NextRequest) {

@@ -29,7 +29,16 @@ export async function signUp(params: SignUpParams) {
   const { uid, name, email } = params;
 
   try {
-    console.log("Attempting to sign up user:", email, "with uid:", uid);
+    console.log("=== SIGNUP ATTEMPT ===");
+    console.log("Email:", email);
+    console.log("UID:", uid);
+    console.log("Name:", name);
+    console.log("Environment check:", {
+      hasProjectId: !!process.env.FIREBASE_PROJECT_ID,
+      hasClientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
+      hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+      adminEmail: process.env.NEXT_PUBLIC_ADMIN_EMAIL
+    });
     
     // Check if user is admin based on email
     const ADMIN_EMAILS = [process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@example.com"];
@@ -72,7 +81,14 @@ export async function signIn(params: SignInParams) {
   const { email, idToken } = params;
 
   try {
-    console.log("Attempting to sign in user:", email);
+    console.log("=== SIGNIN ATTEMPT ===");
+    console.log("Email:", email);
+    console.log("ID Token length:", idToken?.length || 0);
+    console.log("Environment check:", {
+      hasProjectId: !!process.env.FIREBASE_PROJECT_ID,
+      hasClientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
+      hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+    });
     
     const userRecord = await auth.getUserByEmail(email);
     if (!userRecord) {

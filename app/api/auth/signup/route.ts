@@ -3,11 +3,16 @@ import { signUp, signIn } from "@/lib/actions/auth.action";
 
 export async function POST(request: NextRequest) {
   try {
-    const { uid, email, name, idToken } = await request.json();
+    console.log("=== SIGNUP API ENDPOINT ===");
+    const body = await request.json();
+    console.log("Request body:", { ...body, idToken: body.idToken ? `${body.idToken.substring(0, 20)}...` : 'missing' });
+    
+    const { uid, email, name, idToken } = body;
 
     if (!uid || !email || !name || !idToken) {
+      console.log("Missing required fields:", { uid: !!uid, email: !!email, name: !!name, idToken: !!idToken });
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "All fields are required", received: { uid: !!uid, email: !!email, name: !!name, idToken: !!idToken } },
         { status: 400 }
       );
     }
