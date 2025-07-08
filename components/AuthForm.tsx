@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import Link from "next/link";
 import { auth, googleProvider } from "@/firebase/client";
-import { 
-  signInWithPopup, 
+import { signInWithPopup, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   updateProfile,
@@ -113,10 +111,49 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
-        console.log('Google sign-in successful, redirecting...');
-        setSuccess(true);
-        alert(`Signed in as ${result.user.displayName}`);
-        window.location.href = '/gallery';
+        console.log('Google sign-in successful, setting session...');
+        
+        // Get ID token
+        const idToken = await result.user.getIdToken();
+        
+        // Check if user exists, if not create account
+        let authEndpoint = '/api/auth/signin';
+        let authBody: any = { 
+          email: result.user.email,
+          idToken 
+        };
+        
+        // Try to sign in first
+        let authRes = await fetch(authEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(authBody),
+        });
+        
+        // If user doesn't exist, create account
+        if (!authRes.ok && authRes.status === 401) {
+          authEndpoint = '/api/auth/signup';
+          authBody = {
+            uid: result.user.uid,
+            email: result.user.email,
+            name: result.user.displayName || result.user.email?.split('@')[0] || 'User',
+            idToken
+          };
+          
+          authRes = await fetch(authEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(authBody),
+          });
+        }
+        
+        if (authRes.ok) {
+          setSuccess(true);
+          alert(`Signed in as ${result.user.displayName}`);
+          window.location.href = '/gallery';
+        } else {
+          throw new Error('Failed to complete authentication');
+        }
       }
     } catch (err: any) {
       console.error('Google sign-in error:', err);
@@ -243,12 +280,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
             </p>
           )}
           
-          <div className="flex gap-3">
+          <div className="flex gap-3 z-50">
             <button
               type="button"
               onClick={handleForgotPassword}
               disabled={loading}
-              className={`flex-1 bg-gradient-to-r from-indigo-600 to-pink-600 text-white font-bold py-3 rounded-lg shadow-lg hover:scale-105 transition-transform ${
+              className={`flex-1 bg-gradient-to-r cursor-auto from-indigo-600 to-pink-600 text-white font-bold py-3 rounded-lg shadow-lg hover:scale-105 transition-transform ${
                 loading ? "opacity-60 cursor-not-allowed" : ""
               }`}
             >
@@ -338,11 +375,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
           </div>
           
           {!isSignUp && (
-            <div className="text-right">
+            <div className="text-right z-50">
               <button 
                 type="button" 
                 onClick={() => setForgotPassword(true)}
-                className="text-blue-400 text-sm hover:underline"
+                className="text-blue-400 text-sm hover:underline z-100 cursor-auto"
               >
                 Forgot password?
               </button>
@@ -414,20 +451,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
         Continue with Google
       </button>
 
-      <p className="text-gray-500 mt-6 text-sm">
+      <p className="text-gray-500 mt-6 text-sm z-50">
         {isSignUp ? (
           <>
             Already have an account?{" "}
-            <Link href="/sign-in" className="text-blue-400 hover:underline">
+            <a href="/sign-in" className="text-blue-400 hover:underline z-10">
               Sign in
-            </Link>
+            </a>
           </>
         ) : (
           <>
             Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="text-blue-400 hover:underline">
+            <a href="/sign-up" className="text-blue-400 hover:underline z-10">
               Sign up
-            </Link>
+            </a>
           </>
         )}
       </p>

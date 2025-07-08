@@ -2,27 +2,17 @@
 import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
-  IconAi,
-  IconArrowLeft,
-  IconBrandAppgallery,
   IconDashboard,
-  IconForms,
   IconGalaxy,
-  IconGitPullRequest,
   IconHelp,
-  IconPhotoAi,
   IconPhotoCircle,
-  IconPrompt,
-  IconStar,
   IconUpload,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import {
   Bookmark,
-  Contact,
   Contact2Icon,
-  ContactRoundIcon,
   GalleryHorizontal,
 } from "lucide-react";
 import { UserProfileSidebarLink } from "./UserProfileSidebarLink";
