@@ -198,16 +198,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
   // Show loading state until component is mounted
   if (!mounted) {
     return (
-      <div className="bg-black bg-opacity-80 rounded-2xl shadow-2xl p-10 w-full max-w-md flex flex-col items-center justify-center h-96">
+      <div className="bg-black  rounded-2xl shadow-2xl p-10 w-full max-w-md flex flex-col items-center justify-center h-96">
         <div className="relative">
           <div className="w-20 h-20 border-4 border-gray-600 rounded-full animate-spin">
             <div className="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" style={{animationDuration: '1s'}}></div>
           </div>
-          <div className="absolute inset-0 w-16 h-16 m-2 border-4 border-purple-500 border-b-transparent rounded-full animate-spin" style={{animationDuration: '1.5s', animationDirection: 'reverse'}}></div>
-          <div className="absolute inset-0 w-12 h-12 m-4 border-4 border-pink-500 border-r-transparent rounded-full animate-spin" style={{animationDuration: '2s'}}></div>
+          <div className="absolute inset-0 w-16 h-16 m-2 border-4 border-red-500 border-b-transparent rounded-full animate-spin" style={{animationDuration: '1.5s', animationDirection: 'reverse'}}></div>
+          <div className="absolute inset-0 w-12 h-12 m-4 border-4 border-red-500 border-r-transparent rounded-full animate-spin" style={{animationDuration: '2s'}}></div>
           
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-red-500 rounded-full animate-pulse"></div>
           </div>
         </div>
         
@@ -217,30 +217,30 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
         
         <div className="flex space-x-1 mt-3">
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
-          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-          <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-black/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl 
-                  border border-white/20 dark:border-white/10
-                  shadow-2xl shadow-black/10 dark:shadow-black/20
+    <div className="bg-black/10 backdrop-blur-2xl rounded-3xl 
+                  border border-white/10
+                  shadow-2xl shadow-black/20
                   p-10  max-w-md flex flex-col items-center
-                  relative overflow-hidden group w-screen">
+                  relative overflow-hidden group w-screen ">
       {/* Animated gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-500/10 to-pink-500/10 
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-red-500/10 to-red-500/10 
                       opacity-50 group-hover:opacity-70 transition-opacity duration-500"></div>
       <div className="relative z-10">
-        <h2 className="text-xl font-bold bg-gradient-to-r from-blue-500 to-pink-600 bg-clip-text text-transparent mb-1 justify-center text-center">
+        <h2 className="text-xl font-bold bg-gradient-to-r from-blue-500 to-red-600 bg-clip-text text-transparent mb-1 justify-center text-center">
           Prompt Palette
         </h2>
-        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-wide">
+        <h1 className="text-3xl font-extrabold text-white mb-2 tracking-wide">
           {isSignUp ? "Create Your Account" : "Welcome Back"}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8 text-center">
+        <p className="text-gray-400 mb-8 text-center">
           {isSignUp
             ? "Join us and start your journey!"
             : "Sign in to your account to continue"}
@@ -265,9 +265,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
               autoComplete="email"
               suppressHydrationWarning
               className="w-full pl-10 pr-4 py-3 rounded-2xl 
-                       bg-white/10 dark:bg-black/10 backdrop-blur-xl
-                       border border-white/20 dark:border-white/10
-                       text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
+                       bg-black/10 backdrop-blur-xl
+                       border border-white/10
+                       text-white placeholder-gray-400
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                        transition-all duration-300"
             />
@@ -285,7 +285,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
               type="button"
               onClick={handleForgotPassword}
               disabled={loading}
-              className={`flex-1 bg-gradient-to-r cursor-auto from-indigo-600 to-pink-600 text-white font-bold py-3 rounded-lg shadow-lg hover:scale-105 transition-transform ${
+              className={`flex-1 bg-gradient-to-r cursor-auto from-indigo-600 to-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:scale-105 transition-transform ${
                 loading ? "opacity-60 cursor-not-allowed" : ""
               }`}
             >
@@ -316,9 +316,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
               autoComplete="name"
               suppressHydrationWarning
               className="w-full pl-10 pr-4 py-3 rounded-2xl 
-                       bg-white/10 dark:bg-black/10 backdrop-blur-xl
-                       border border-white/20 dark:border-white/10
-                       text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
+                       bg-black/10 backdrop-blur-xl
+                       border border-white/10
+                       text-white placeholder-gray-400
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                        transition-all duration-300"
               />
@@ -337,9 +337,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
               autoComplete="email"
               suppressHydrationWarning
               className="w-full pl-10 pr-4 py-3 rounded-2xl 
-                       bg-white/10 dark:bg-black/10 backdrop-blur-xl
-                       border border-white/20 dark:border-white/10
-                       text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
+                       bg-black/10 backdrop-blur-xl
+                       border border-white/10
+                       text-white placeholder-gray-400
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                        transition-all duration-300"
             />
@@ -358,9 +358,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
               autoComplete={isSignUp ? "new-password" : "current-password"}
               suppressHydrationWarning
               className="w-full pl-10 pr-10 py-3 rounded-2xl 
-                       bg-white/10 dark:bg-black/10 backdrop-blur-xl
-                       border border-white/20 dark:border-white/10
-                       text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
+                       bg-black/10 backdrop-blur-xl
+                       border border-white/10
+                       text-white placeholder-gray-400
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                        transition-all duration-300"
             />
@@ -409,8 +409,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
           <button
             type="submit"
             disabled={loading}
-            className={`liquid-btn bg-gradient-to-r from-blue-500 to-purple-600 
-                       hover:from-blue-600 hover:to-purple-700
+            className={`liquid-btn bg-gradient-to-r from-blue-500 to-red-500 
+                       hover:from-blue-600 hover:to-red-600
                        text-white font-bold py-3 rounded-2xl shadow-2xl 
                        hover:scale-105 hover:shadow-blue-500/25 transition-all duration-300 ${
               loading ? "opacity-60 cursor-not-allowed" : ""
@@ -436,10 +436,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
 
       <button 
         className="w-full flex items-center justify-center gap-3 
-                 bg-white/10 dark:bg-black/10 backdrop-blur-xl
-                 border border-white/20 dark:border-white/10
-                 hover:bg-white/20 dark:hover:bg-black/20 
-                 text-gray-900 dark:text-white py-3 rounded-2xl 
+                 bg-black/10 backdrop-blur-xl
+                 border border-white/10
+                 hover:bg-black/20 
+                 text-white py-3 rounded-2xl 
                  transition-all duration-300 hover:scale-105
                  shadow-lg hover:shadow-xl"
         onClick={handleGoogleSignIn}
@@ -458,9 +458,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
             <a href="/sign-in" className="text-blue-400 hover:underline z-10">
               Sign in
             </a><br/>
-            we hope you will accept our 
+            we hope you will accept our  
             <a href="/terms" className="text-blue-400 hover:underline z-10">
-              terms and conditions.
+              {" "}terms and conditions.
             </a>
           </>
           

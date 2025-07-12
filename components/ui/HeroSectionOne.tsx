@@ -18,7 +18,7 @@ export function HeroSectionOne() {
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-purple-500/5 to-pink-500/5"></div>
           
           <div className="relative z-10 ">
-            <h1 className="relative tracking-normal mx-auto max-w-7xl text-center text-4xl font-bold text-gray-900 md:text-6xl lg:text-7xl dark:text-white">
+            <h1 className="relative tracking-normal mx-auto max-w-7xl text-center text-4xl font-bold md:text-6xl lg:text-7xl text-white">
               <motion.span
                 initial={{ opacity: 0, filter: "blur(4px)", y: 10 }}
                 animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
@@ -57,7 +57,7 @@ export function HeroSectionOne() {
                 duration: 0.6,
                 delay: 0.6,
               }}
-              className="mx-auto max-w-4xl py-6 text-center text-xl font-normal text-gray-400 dark:text-gray-300 leading-relaxed"
+              className="mx-auto max-w-4xl py-6 text-center text-xl font-normal text-gray-300 leading-relaxed"
             >
               The ultimate home for your AI image prompts. Easily store and access
               your best commands to consistently generate amazing art. Your
@@ -79,8 +79,8 @@ export function HeroSectionOne() {
               className="mt-10 flex flex-wrap items-center justify-center gap-6"
             >
               <button
-                className="liquid-btn px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 
-                         hover:from-blue-600 hover:to-purple-700 text-white font-semibold 
+                className="liquid-btn px-8 py-4 bg-gradient-to-r from-blue-500 to-red-600 
+                         hover:from-blue-600 hover:to-red-700 text-white font-semibold 
                          rounded-2xl shadow-2xl hover:scale-105 hover:shadow-blue-500/25 
                          transition-all duration-300 min-w-[200px]"
                 onClick={() => {
@@ -90,10 +90,10 @@ export function HeroSectionOne() {
                 Explore Gallery
               </button>
               <button 
-                className="px-8 py-4 bg-white/10 dark:bg-black/10 backdrop-blur-xl
-                         border border-white/20 dark:border-white/10
-                         hover:bg-white/20 dark:hover:bg-black/20 
-                         text-gray-300 dark:text-white font-semibold rounded-2xl 
+                className="px-8 py-4 bg-black/10 backdrop-blur-xl
+                         border border-white/10
+                         hover:bg-black/20 
+                         text-white font-semibold rounded-2xl 
                          transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl
                          min-w-[200px]"
                 onClick={() => {
@@ -116,12 +116,12 @@ export function HeroSectionOne() {
                 duration: 0.8,
                 delay: 1.2,
               }}
-              className="mt-16 bg-white/10 dark:bg-black/10 backdrop-blur-xl 
-                       border border-white/20 dark:border-white/10
+              className="mt-16 bg-black/10 backdrop-blur-xl 
+                       border border-white/10
                        rounded-3xl p-6 shadow-2xl hover:scale-105 transition-all duration-500"
             >
               <AnimatePresence>
-                <div className="w-full overflow-hidden rounded-2xl border border-white/20 dark:border-white/10">
+                <div className="w-full overflow-hidden rounded-2xl border border-white/10">
                   <img
                     src="https://claid.ai/static/7f4415137e646985ded662bebb8fd248/ef08a/How_write_Prompts_f2b3eb0a8a.webp"
                     alt="AI prompt examples showcase"
@@ -181,7 +181,7 @@ export const Navbar = () => {
   }, []);
 
   return (
-    <nav className="flex w-full items-center justify-between border-t border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
+    <nav className="flex w-full items-center justify-between border-t border-b border-neutral-800">
       <div className="flex items-center gap-2">
         <div className="size-7 rounded-full bg-gradient-to-br from-green-500 to-pink-500" />
         <h1 className="text-base font-bold md:text-2xl">Prompt Palette</h1>
@@ -211,7 +211,7 @@ export const Navbar = () => {
         </div>
       ) : (
         <button
-          className="w-24 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          className="w-24 transform rounded-lg  px-6 py-2 font-medium transition-all duration-300 hover:-translate-y-0.5  md:w-32 bg-white text-black hover:bg-gray-200"
           onClick={() => {
             window.location.href = "/sign-in";
           }}

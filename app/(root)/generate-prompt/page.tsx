@@ -44,15 +44,15 @@ const AiPromptUI = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white/10 dark:bg-black/10 backdrop-blur-2xl text-white flex flex-col items-center px-4 pt-10 pb-24 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-black/10 backdrop-blur-2xl text-white flex flex-col items-center px-4 pt-10 pb-24 relative overflow-hidden font-sans">
     
       <div className="mb-8 text-center max-w-xl">
-        <div className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl p-6">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent drop-shadow-lg">
+        <div className="bg-black/10 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl p-6">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-pink-500 to-red-400 bg-clip-text text-transparent drop-shadow-lg">
             AI Prompt Generator
           </h1>
           <p className="text-gray-300 text-sm mt-2">
-            Transform simple ideas into vivid AI image prompts.
+            Transform simple ideas into stunning AI image prompts.
           </p>
         </div>
       </div>
@@ -69,7 +69,7 @@ const AiPromptUI = () => {
 
             {entry.ai && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] bg-white/10 dark:bg-black/10 backdrop-blur-2xl border border-white/10 px-6 py-4 rounded-2xl shadow-xl text-gray-100 whitespace-pre-line">
+                <div className="max-w-[85%] bg-black/10 backdrop-blur-2xl border border-white/10 px-6 py-4 rounded-2xl shadow-xl text-gray-100 whitespace-pre-line">
                   {entry.ai}
                 </div>
               </div>
@@ -79,7 +79,7 @@ const AiPromptUI = () => {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl border border-white/10 px-6 py-4 rounded-2xl shadow-xl">
+            <div className="bg-black/10 backdrop-blur-2xl border border-white/10 px-6 py-4 rounded-2xl shadow-xl">
               <div className="text-blue-400 animate-pulse flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-200"></div>
@@ -105,7 +105,7 @@ const AiPromptUI = () => {
         }}
         className="fixed bottom-6 w-full max-w-2xl px-4"
       >
-        <div className="flex items-center gap-3 bg-white/10 dark:bg-black/80 backdrop-blur-2xl border border-white/20 px-6 py-4 rounded-2xl shadow-7xl">
+        <div className="flex items-center gap-3 bg-black/80 backdrop-blur-2xl border border-white/20 px-6 py-4 rounded-2xl shadow-7xl">
           <input
             type="text"
             className="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none text-sm"
@@ -117,7 +117,7 @@ const AiPromptUI = () => {
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2 rounded-xl transition-all duration-300 font-medium shadow-lg hover:scale-105"
+            className="bg-gradient-to-r from-blue-500 to-red-400 hover:from-blue-600 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2 rounded-xl transition-all duration-300 font-medium shadow-lg hover:scale-105"
           >
             Generate
           </button>

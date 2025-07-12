@@ -1,4 +1,3 @@
-// 'use client'; must remain for client-side components
 'use client';
 
 import { useState } from 'react';
@@ -8,10 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
   Select,
-  SelectContent,
   SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select';
 import {
   Card,
@@ -99,11 +95,11 @@ export default function FeedbackPage() {
   const typeInfo = getTypeInfo();
   const TypeIcon = typeInfo.icon;
 
-  const glassCard = 'bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl';
+  const glassCard = 'bg-black/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl';
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-black to-neutral-900 text-white">
+      <div className="min-h-screen flex items-center justify-center p-6  text-white">
         <Card className={`${glassCard} max-w-md w-full`}>
           <CardContent className="text-center p-8">
             <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -123,7 +119,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="min-h-screen py-16 px-6 bg-gradient-to-br from-black via-neutral-900 to-black text-white">
+    <div className="min-h-screen py-16 px-6  text-white">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-10">
         <div className="space-y-6">
           <Card className={glassCard}>
@@ -224,7 +220,7 @@ export default function FeedbackPage() {
 
                 {error && <p className="text-sm text-red-400 bg-red-500/10 px-3 py-2 rounded-lg">{error}</p>}
 
-                <Button type="submit" disabled={isLoading} className={`w-full bg-${typeInfo.color}-600 hover:bg-${typeInfo.color}-700`}>
+                <Button type="submit" disabled={isLoading} className={`w-full rounded-2xl bg-${typeInfo.color}-600 hover:bg-${typeInfo.color}-700`}>
                   {isLoading ? <><Loader2 className="animate-spin w-4 h-4 mr-2" /> Submitting...</> : <><TypeIcon className="w-4 h-4 mr-2" /> Submit</>}
                 </Button>
               </form>

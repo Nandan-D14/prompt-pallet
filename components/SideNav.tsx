@@ -25,7 +25,6 @@ export function SideBar({ children }: { children?: React.ReactNode }) {
     console.error('SideNav: Auth error:', error);
   }
   
-  // Show loading state while auth is initializing
   if (loading) {
     console.log('SideNav: Auth loading...');
   }
@@ -98,7 +97,7 @@ export function SideBar({ children }: { children?: React.ReactNode }) {
   return (
     <div
       className={cn(
-        "mx-auto flex h-screen w-full max-w-screen flex-1 flex-col overflow-hidden rounded-md border border-none  md:flex-row  bg-white/10 dark:bg-black/10 backdrop-blur-2xl border-white/20 dark:border-white/10 shadow-2xl "
+        "mx-auto flex h-screen w-full max-w-screen flex-1 flex-col overflow-hidden rounded-md border border-none  md:flex-row  bg-black/10 backdrop-blur-2xl border-white/10 shadow-2xl "
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
@@ -148,7 +147,6 @@ export const LogoIcon = () => {
         width={32}
         className="h-7 w-7 rounded-full  from-red-500 to-blue-500 bg-gradient-to-br"
         />
-      {/* <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-white" /> */}
     </a>
   );
 };

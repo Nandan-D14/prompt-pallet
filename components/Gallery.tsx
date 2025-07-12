@@ -66,7 +66,7 @@ const TrendingSlideshow = ({
 
   return (
     <section className="relative w-full max-w-screen-xl mx-auto h-[400px] md:h-[600px] 
-                     bg-black/80 backdrop-blur-2xl rounded-3xl 
+                     bg-black backdrop-blur-2xl rounded-3xl 
                      border border-white/30
                      shadow-2xl shadow-black/10 dark:shadow-black/20
                      overflow-hidden mb-8">
@@ -547,7 +547,7 @@ export default function Gallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-neutral-950/[0.2] backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowLoginPrompt(false)}
           >
             <motion.div
@@ -606,13 +606,13 @@ export default function Gallery() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed inset-y-0 right-0 w-full md:w-96 bg-neutral-900/[0.9] border-l border-neutral-800 z-50 p-6 flex flex-col shadow-2xl backdrop-blur-xl" /* Liquid glass sidebar */
+            className="fixed inset-y-0 right-0 w-full md:w-96 bg-neutral-800/[0.2]  border border-neutral-900 border-white-800/[0.1] z-50 p-6 flex flex-col shadow-2xl backdrop-blur-xl" 
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-neutral-100">Filters</h3>
               <button
                 onClick={() => setFiltersOpen(false)}
-                className="p-2 rounded-full bg-neutral-800/[0.7] text-neutral-200 hover:bg-neutral-700/[0.9] transition-colors backdrop-blur-sm" /* Liquid glass button */
+                className="p-2 rounded-full bg-neutral-800/[0.2] text-neutral-200 hover:bg-neutral-700/[0.9] transition-colors backdrop-blur-sm" 
               >
                 <X size={24} />
               </button>
@@ -695,7 +695,7 @@ export default function Gallery() {
             {/* Remove All Filters Button */}
             <button
               onClick={handleRemoveAllFilters}
-              className="mt-auto px-4 py-2 rounded-full bg-red-600/[0.8] text-white font-medium hover:bg-red-700/[0.9] transition-colors backdrop-blur-sm" /* Liquid glass button */
+              className="mt-auto px-4 py-2 rounded-2xl bg-red-600/[0.8] text-white font-medium hover:bg-red-700/[0.9] transition-colors backdrop-blur-sm"
             >
               Remove All Filters
             </button>

@@ -97,18 +97,18 @@ export default function GlassyNavigation() {
                     className={`relative px-4 py-2 rounded-2xl transition-all duration-300 
                               flex items-center space-x-2 group overflow-hidden
                               ${isActive 
-                                ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-blue-400 dark:text-blue-300' 
+                                ? 'bg-gradient-to-r from-blue-500/20 to-red-600/20 text-blue-400 dark:text-blue-300' 
                                 : 'text-gray-400 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
                               }`}
                   >
                     {isActive && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-600/10 rounded-2xl"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-red-600/10 rounded-2xl"></div>
                     )}
                     <Icon className="w-4 h-4 relative z-10" />
                     <span className="text-sm font-medium relative z-10">{item.name}</span>
                     
                     {/* Hover effect */}
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/10 to-purple-500/10 
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/10 to-red-500/10 
                                     opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </Link>
                 );
@@ -123,7 +123,7 @@ export default function GlassyNavigation() {
                   {user.avatarUrl ? (
                     <img src={user.avatarUrl} alt={user.name} className="w-8 h-8 rounded-full" />
                   ) : (
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-red-600 rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-medium">{user.name.charAt(0)}</span>
                     </div>
                   )}
@@ -138,8 +138,8 @@ export default function GlassyNavigation() {
               ) : (
                 <Link
                   href="/sign-in"
-                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 
-                           text-white rounded-2xl hover:from-blue-600 hover:to-purple-700 
+                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-red-600 
+                           text-white rounded-2xl hover:from-blue-600 hover:to-red-700 
                            transition-all duration-300 text-sm font-medium"
                 >
                   Sign In
@@ -158,7 +158,7 @@ export default function GlassyNavigation() {
                         px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="text-lg font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+            <Link href="/" className="text-lg font-bold bg-gradient-to-r from-blue-500 to-red-600 bg-clip-text text-transparent">
               Prompt Palette
             </Link>
 
@@ -191,7 +191,7 @@ export default function GlassyNavigation() {
                       onClick={() => setIsMenuOpen(false)}
                       className={`flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-300
                                 ${isActive 
-                                  ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-blue-400 dark:text-blue-300' 
+                                  ? 'bg-gradient-to-r from-blue-500/20 to-red-600/20 text-blue-400 dark:text-blue-300' 
                                   : 'text-gray-700 dark:text-gray-300 hover:bg-white/10 dark:hover:bg-black/10'
                                 }`}
                     >
@@ -215,7 +215,7 @@ export default function GlassyNavigation() {
                     href="/sign-in"
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center justify-center px-4 py-3 
-                             bg-gradient-to-r from-blue-500 to-purple-600 
+                             bg-gradient-to-r from-blue-500 to-red-600 
                              text-white rounded-2xl font-medium"
                   >
                     Sign In

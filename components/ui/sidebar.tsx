@@ -89,7 +89,7 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "h-full px-4 py-4 hidden  md:flex md:flex-col bg-black w-[300px] shrink-0",
+          "h-full px-3.5 py-4 hidden  md:flex md:flex-col bg-black w-[300px] shrink-0",
           className
         )}
         animate={{
@@ -121,7 +121,7 @@ export const MobileSidebar = ({
       >
         <div className="flex justify-end z-20 w-full">
           <IconMenu2
-            className="text-neutral-800 dark:text-neutral-200"
+            className="text-neutral-100"
             onClick={() => setOpen(!open)}
           />
         </div>
@@ -136,12 +136,12 @@ export const MobileSidebar = ({
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
+                "fixed h-full w-full inset-0 bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
                 className
               )}
             >
               <div
-                className="absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200"
+                className="absolute right-10 top-10 z-50 text-neutral-100"
                 onClick={() => setOpen(!open)}
               >
                 <IconX />
@@ -171,10 +171,10 @@ export const SidebarLink = ({
     <a
       href={link.href}
       className={cn(
-        `flex items-center justify-start gap-2  group/sidebar py-2 
+        `flex items-center justify-start gap-2 p-1 rounded-2xl group/sidebar py-2 
         ${isActive 
-                                ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-blue-400 dark:text-blue-300' 
-                                : 'text-gray-400 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
+                                ? 'bg-gradient-to-r from-indigo-500/60 to-red-600/60 text-blue-300' 
+                                : 'text-gray-300 hover:text-blue-400'
                               }`,
         className
       )}
@@ -187,7 +187,7 @@ export const SidebarLink = ({
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+        className="text-neutral-100 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
       >
         {link.label}
       </motion.span>

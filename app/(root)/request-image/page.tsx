@@ -63,7 +63,7 @@ export default function RequestImagePage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen py-5 px-6 bg-gradient-to-br from-black via-neutral-900 to-black text-white">
+      <div className="min-h-screen py-5 px-6  text-white">
         <Card className="w-full max-w-md glass-card">
           <CardContent className="text-center p-8">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -76,7 +76,7 @@ export default function RequestImagePage() {
             </p>
             <Button 
               onClick={() => window.location.href = '/gallery'}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="w-full bg-gradient-to-r from-blue-500 to-red-500 hover:from-blue-700 hover:to-red-700"
             >
               Browse Gallery
             </Button>
@@ -87,7 +87,7 @@ export default function RequestImagePage() {
   }
 
   return (
-    <div className="min-h-screen px-6 bg-gradient-to-br from-black via-neutral-900 to-black text-white">
+    <div className="min-h-screen px-6  text-white">
       <div className="container mx-auto px-6 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -251,7 +251,7 @@ export default function RequestImagePage() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="px-6 py-5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 w-full"
+                      className="px-6 py-5 bg-gradient-to-r from-blue-500 to-red-500 hover:from-blue-700 hover:to-red-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 w-full"
                     >
                       {isLoading ? (
                         <>

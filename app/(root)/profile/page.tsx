@@ -190,14 +190,14 @@ const ProfilePage = () => {
           </h1>
           <button
             onClick={handleLogout}
-            className="text-sm border border-white/20 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition"
+            className="text-sm border border-white/20 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-2xl transition"
           >
             Log Out
           </button>
         </div>
 
         {/* Profile Card */}
-        <div className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl p-8 space-y-6">
+        <div className="bg-black/10 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl p-8 space-y-6">
           <div className="flex items-center gap-6">
             <div className="relative group">
               <img
@@ -227,10 +227,10 @@ const ProfilePage = () => {
                   className="w-full bg-white/5 border border-white/20 text-white px-4 py-2 rounded"
                 />
               ) : (
-                <h2 className="text-2xl font-semibold">{user.name}</h2>
+                <h2 className="text-4xl font-semibold mt-4">{user.name}</h2>
               )}
-              <p className="text-sm text-gray-400">{user.email}</p>
-              <p className="text-xs text-indigo-400 mt-1">{user.savedPhotos} Saved Photos</p>
+              <p className="text-xl text-gray-400">{user.email}</p>
+              <p className="text-xl text-green-400 mt-6">{user.savedPhotos} Saved Photos</p>
             </div>
           </div>
 
@@ -261,13 +261,13 @@ const ProfilePage = () => {
                 <>
                   <button
                     onClick={handleSave}
-                    className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm"
+                    className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-2xl text-sm"
                   >
                     Save
                   </button>
                   <button
                     onClick={handleCancel}
-                    className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm"
+                    className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-2xl text-sm"
                   >
                     Cancel
                   </button>
@@ -276,7 +276,7 @@ const ProfilePage = () => {
             </div>
             <button
               onClick={handleDelete}
-              className="text-red-500 text-sm hover:underline"
+              className="text-red-500 text-sm hover:underline cursor-pointer" 
             >
               Delete Account
             </button>

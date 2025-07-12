@@ -39,7 +39,7 @@ export default function WorkflowSection() {
       step: "02", 
       title: "Generate Prompts",
       description: "Use our AI assistant to create detailed prompts from your simple descriptions",
-      color: "from-purple-500 to-pink-500"
+      color: "from-pink-500 to-pink-500"
     },
     {
       step: "03",
@@ -65,7 +65,7 @@ export default function WorkflowSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-red-500 to-pink-400 bg-clip-text text-transparent mb-6">
             What is Prompt Palette?
           </h2>
           <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
@@ -85,7 +85,7 @@ export default function WorkflowSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl p-6 hover:scale-105 transition-all duration-300"
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-red-600 rounded-2xl flex items-center justify-center mb-4">
                 <feature.icon className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
@@ -103,7 +103,7 @@ export default function WorkflowSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-400 via-blue-500 to-purple-400 bg-clip-text text-transparent mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-400 via-blue-500 to-red-400 bg-clip-text text-transparent mb-6">
             How It Works
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
@@ -156,7 +156,7 @@ export default function WorkflowSection() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => window.location.href = '/gallery'}
-                className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg"
+                className="px-8 py-3 bg-gradient-to-r from-blue-500 to-red-600 hover:from-blue-600 hover:to-red-700 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 Explore Gallery
               </button>
@@ -174,7 +174,7 @@ export default function WorkflowSection() {
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-10 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-10 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+        <div className="absolute bottom-1/4 right-10 w-40 h-40 bg-red-500/5 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
         <div className="absolute top-3/4 left-1/3 w-24 h-24 bg-pink-500/5 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
       </div>
     </div>

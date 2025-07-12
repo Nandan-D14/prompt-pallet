@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { FiGithub, FiTwitter, FiInstagram, FiMail, FiHeart, FiStar, FiLinkedin } from 'react-icons/fi';
+import { FiGithub,FiInstagram, FiMail,  FiLinkedin } from 'react-icons/fi';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -116,7 +116,7 @@ export default function Footer() {
                 <button 
                 // onClick={sendEmail(document.getElementById('subcribInput')?.innerText)}
                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-pink-500 
-                                 text-white rounded-r-xl hover:from-blue-600 hover:to-purple-700 
+                                 text-white rounded-r-xl hover:from-blue-600 hover:to-red-700 
                                  transition-all duration-300 text-sm font-medium">
                   Subscribe
                 </button>
