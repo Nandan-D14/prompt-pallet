@@ -6,7 +6,7 @@ import Footer from "@/components/ui/Footer";
 
 const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-black text-neutral-100">
       <SideBar>
         <div className="flex flex-col min-h-screen">
           <div className="flex-1">

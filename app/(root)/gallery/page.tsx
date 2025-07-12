@@ -5,7 +5,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className="flex flex-col overflowy-y-auto w-full h-auto">
+    <div className="flex flex-col overflowy-y-auto w-full h-auto bg-black">
       <Gallery />
     </div>
   )

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { FiImage, FiEdit3, FiSave, FiShare2, FiUpload, FiZap } from 'react-icons/fi';
+import { FiImage, FiSave, FiShare2, FiZap } from 'react-icons/fi';
 import { motion } from 'motion/react';
 
 export default function WorkflowSection() {
@@ -56,7 +56,7 @@ export default function WorkflowSection() {
   ];
 
   return (
-    <div className="relative py-20 px-4">
+    <div className="relative py-20 px-4 bg-black">
       {/* About Section */}
       <div className="max-w-7xl mx-auto mb-20">
         <motion.div

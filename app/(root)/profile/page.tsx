@@ -168,7 +168,7 @@ const ProfilePage = () => {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen text-white">
-        <div className="bg-black/80 p-8 rounded-lg shadow-lg">
+        <div className="bg-neutral-950/[0.2] p-8 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-4">You must be signed in to view your profile.</h2>
           <a href="/sign-in" className="text-blue-400 underline">Go to Sign In</a>
         </div>
@@ -185,7 +185,7 @@ const ProfilePage = () => {
 
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-pink-400 text-transparent bg-clip-text">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-red-500 text-transparent bg-clip-text">
             Your Profile
           </h1>
           <button
@@ -213,7 +213,7 @@ const ProfilePage = () => {
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 text-xs px-2 py-1 rounded bg-indigo-500 group-hover:opacity-100 opacity-0 transition"
+                className="absolute bottom-0 right-0 text-xs px-2 py-1 rounded-2xl bg-gradient-to-r from-blue-500 to-red-500  group-hover:opacity-100 opacity-0 transition"
               >
                 Change
               </button>
@@ -253,7 +253,7 @@ const ProfilePage = () => {
               {!editing ? (
                 <button
                   onClick={() => setEditing(true)}
-                  className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded text-sm"
+                  className="bg-gradient-to-r from-blue-500 to-red-500 hover:from-blue-600 hover:to-red-600 px-4 py-2 rounded-2xl text-sm"
                 >
                   Edit Profile
                 </button>

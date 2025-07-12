@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-// Removed theme imports since we're using dark mode only
-import { FiMenu, FiX, FiUser, FiSettings, FiLogOut, FiImage, FiHome, FiShield } from 'react-icons/fi';
+import { FiMenu, FiX, FiUser, FiLogOut,  FiHome, FiShield, FiSave } from 'react-icons/fi';
+import { IconGalaxy, IconPhotoCircle } from '@tabler/icons-react';
 
 interface User {
   id: string;
@@ -61,10 +61,10 @@ export default function GlassyNavigation() {
 
   const navigation = [
     { name: 'Home', href: '/', icon: FiHome },
-    { name: 'Gallery', href: '/gallery', icon: FiImage },
+    { name: 'Gallery', href: '/gallery', icon: IconPhotoCircle },
     ...(user ? [
-      { name: 'Generate', href: '/generate-prompt', icon: FiSettings },
-      { name: 'Saved Images', href: '/saved-images', icon: FiImage },
+      { name: 'Generate', href: '/generate-prompt', icon: IconGalaxy },
+      { name: 'Saved Images', href: '/saved-images', icon: FiSave },
       { name: 'Profile', href: '/profile', icon: FiUser },
       ...(user.isAdmin ? [{ name: 'Admin', href: '/admin-dashboard', icon: FiShield }] : [])
     ] : [])
@@ -73,14 +73,14 @@ export default function GlassyNavigation() {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 hidden lg:block">
-        <div className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl 
+      <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 hidden  max-w-7xl lg:flex justify-center w-full">
+        <div className="bg-blue/10 backdrop-blur-2xl rounded-3xl 
                         border border-white/20 dark:border-white/10
                         shadow-2xl shadow-black/10 dark:shadow-black/20
                         px-6 py-3">
           <div className="flex items-center space-x-8">
             {/* Logo */}
-            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">
               Prompt Palette
             </Link>
 
@@ -98,7 +98,7 @@ export default function GlassyNavigation() {
                               flex items-center space-x-2 group overflow-hidden
                               ${isActive 
                                 ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-blue-400 dark:text-blue-300' 
-                                : 'text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
+                                : 'text-gray-400 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
                               }`}
                   >
                     {isActive && (

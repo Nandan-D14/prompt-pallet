@@ -457,8 +457,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
             Already have an account?{" "}
             <a href="/sign-in" className="text-blue-400 hover:underline z-10">
               Sign in
+            </a><br/>
+            we hope you will accept our 
+            <a href="/terms" className="text-blue-400 hover:underline z-10">
+              terms and conditions.
             </a>
           </>
+          
         ) : (
           <>
             Don&apos;t have an account?{" "}

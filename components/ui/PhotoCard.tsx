@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Heart, Download, Share2, Eye, Copy } from "lucide-react";
+import { Heart, Eye, Copy } from "lucide-react";
 import { useState } from "react";
 
 export interface Photo {
@@ -91,7 +91,7 @@ export const PhotoCard = ({
         <img
           src={photo.src}
           alt={photo.alt}
-          loading="lazy"
+          // loading="lazy"
           className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110
                      ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onLoad={() => setImageLoaded(true)}

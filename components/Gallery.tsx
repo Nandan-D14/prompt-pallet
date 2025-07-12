@@ -10,17 +10,10 @@ import {
   ChevronRight,
   Search,
   Filter,
-  ChevronDown,
   Image as ImageIcon,
   Heart,
-  Download,
-  Share2,
-  Copy,
-  Eye,
-  Save,
   Check,
 } from "lucide-react";
-import { FiHeart, FiDownload, FiShare2, FiCopy, FiSave, FiEye } from "react-icons/fi";
 import Lightbox from "./ui/Lightbox";
 import { Photo, PhotoCard } from "./ui/PhotoCard";
 
@@ -73,8 +66,8 @@ const TrendingSlideshow = ({
 
   return (
     <section className="relative w-full max-w-screen-xl mx-auto h-[400px] md:h-[600px] 
-                     bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl 
-                     border border-white/20 dark:border-white/10
+                     bg-black/80 backdrop-blur-2xl rounded-3xl 
+                     border border-white/30
                      shadow-2xl shadow-black/10 dark:shadow-black/20
                      overflow-hidden mb-8">
       {" "}
@@ -459,7 +452,7 @@ export default function Gallery() {
   };
 
   return (
-    <div className="min-h-screen bg-black/70 text-neutral-100 font-sans relative pb-20 overflow-x-hidden">
+    <div className="min-h-screen bg-black text-neutral-100 font-sans relative pb-20 overflow-x-hidden">
       <TrendingSlideshow photos={photos} openLightbox={openLightbox} />
 
       {/* Main Content Section */}
@@ -554,7 +547,7 @@ export default function Gallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-neutral-950/[0.2] backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowLoginPrompt(false)}
           >
             <motion.div

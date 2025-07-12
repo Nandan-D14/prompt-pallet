@@ -5,21 +5,19 @@ import { AnimatePresence, motion } from "motion/react";
 
 export function HeroSectionOne() {
   return (
-    <div className="relative mx-auto my-0 flex max-w-8xl flex-col items-center justify-center px-10">
-      {/* Remove Navbar since we now have GlassyNavigation in layout */}
-      {/* Floating elements for enhanced visual appeal */}
+    <div className="relative bg-black mx-auto my-0 flex max-w-8xl flex-col items-center justify-center px-10">
+  
       <div className="absolute top-20 left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl animate-float"></div>
       <div className="absolute bottom-20 right-10 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl animate-float animation-delay-2000"></div>
       <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-pink-500/10 rounded-full blur-3xl animate-float animation-delay-4000"></div>
       <div className="px-4 py-20 md:py-32 relative z-10">
-        <div className="bg-white/10 dark:bg-black/10 backdrop-blur-2xl rounded-3xl 
-                      border border-white/20 dark:border-white/10
-                      shadow-2xl shadow-black/10 dark:shadow-black/20
+        <div className="bg-black/10 backdrop-blur-2xl rounded-3xl 
+                      border border-white/15
+                      shadow-2xl shadow-black/20
                       p-12 relative overflow-hidden">
-          {/* Animated gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-purple-500/5 to-pink-500/5"></div>
           
-          <div className="relative z-10">
+          <div className="relative z-10 ">
             <h1 className="relative tracking-normal mx-auto max-w-7xl text-center text-4xl font-bold text-gray-900 md:text-6xl lg:text-7xl dark:text-white">
               <motion.span
                 initial={{ opacity: 0, filter: "blur(4px)", y: 10 }}
@@ -59,7 +57,7 @@ export function HeroSectionOne() {
                 duration: 0.6,
                 delay: 0.6,
               }}
-              className="mx-auto max-w-4xl py-6 text-center text-xl font-normal text-gray-700 dark:text-gray-300 leading-relaxed"
+              className="mx-auto max-w-4xl py-6 text-center text-xl font-normal text-gray-400 dark:text-gray-300 leading-relaxed"
             >
               The ultimate home for your AI image prompts. Easily store and access
               your best commands to consistently generate amazing art. Your
@@ -95,7 +93,7 @@ export function HeroSectionOne() {
                 className="px-8 py-4 bg-white/10 dark:bg-black/10 backdrop-blur-xl
                          border border-white/20 dark:border-white/10
                          hover:bg-white/20 dark:hover:bg-black/20 
-                         text-gray-900 dark:text-white font-semibold rounded-2xl 
+                         text-gray-300 dark:text-white font-semibold rounded-2xl 
                          transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl
                          min-w-[200px]"
                 onClick={() => {

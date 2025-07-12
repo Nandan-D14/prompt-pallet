@@ -22,9 +22,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col overflow-auto w-full h-auto min-h-screen">
+    <div className="flex flex-col overflow-auto w-full h-auto min-h-screen bg-black">
       <GlassyNavigation />
-      <div className="pt-20">
+      <div className="pt-10">
         <HeroSectionOne />
         <WorkflowSection />
         <Footer />

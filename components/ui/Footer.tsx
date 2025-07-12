@@ -2,13 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { FiGithub, FiTwitter, FiInstagram, FiMail, FiHeart, FiStar } from 'react-icons/fi';
+import { FiGithub, FiTwitter, FiInstagram, FiMail, FiHeart, FiStar, FiLinkedin } from 'react-icons/fi';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-20 bg-black/20 backdrop-blur-2xl border-t border-white/10">
+    <footer className="relative mt-20 bg-black/80 backdrop-blur-2xl border-t border-white/10">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-10 left-1/4 w-32 h-32 bg-blue-500/5 rounded-full filter blur-2xl animate-pulse"></div>
@@ -21,8 +21,8 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                <FiStar className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                <img src="./ppLog.png" alt="Logo" width={32} height={32} className="rounded-full" />
               </div>
               <h3 className="text-xl font-bold bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">
                 Prompt Palette
@@ -36,8 +36,8 @@ export default function Footer() {
               <Link href="https://github.com/nandan-d14" className="text-gray-400 hover:text-blue-400 transition-colors duration-300">
                 <FiGithub className="w-5 h-5" />
               </Link>
-              <Link href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-300">
-                <FiTwitter className="w-5 h-5" />
+              <Link href="https://www.linkedin.com/in/nandan-d14" className="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+                <FiLinkedin className="w-5 h-5" />
               </Link>
               <Link href="https://www.instagram.com/__nandan__d14/" className="text-gray-400 hover:text-pink-400 transition-colors duration-300">
                 <FiInstagram className="w-5 h-5" />
@@ -85,11 +85,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/api-docs" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm">
-                  API Documentation
-                </Link>
-              </li>
-              <li>
                 <Link href="/terms" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm">
                   Terms of Service
                 </Link>
@@ -111,13 +106,16 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex">
                 <input
+                  id='subcribInput'
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-l-xl 
+                  className=" flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-l-xl 
                            text-white placeholder-gray-400 focus:outline-none focus:ring-2 
                            focus:ring-blue-500 focus:border-transparent backdrop-blur-xl text-sm"
                 />
-                <button className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 
+                <button 
+                // onClick={sendEmail(document.getElementById('subcribInput')?.innerText)}
+                 className="px-4 py-2 bg-gradient-to-r from-blue-500 to-pink-500 
                                  text-white rounded-r-xl hover:from-blue-600 hover:to-purple-700 
                                  transition-all duration-300 text-sm font-medium">
                   Subscribe
@@ -134,9 +132,8 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2 text-sm text-gray-400">
-              <span>© {currentYear} Prompt Palette. Made with</span>
-              <FiHeart className="w-4 h-4 text-red-500 animate-pulse" />
-              <span>for AI enthusiasts.</span>
+              <span>© {currentYear} Prompt Palette. created by NANDAN D </span>
+              
             </div>
             
             <div className="flex items-center space-x-6 text-sm">

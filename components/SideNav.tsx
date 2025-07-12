@@ -11,12 +11,11 @@ import {
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import {
-  Bookmark,
   Contact2Icon,
   GalleryHorizontal,
 } from "lucide-react";
 import { UserProfileSidebarLink } from "./UserProfileSidebarLink";
-import { FiMail, FiMessageCircle, FiTool } from "react-icons/fi";
+import {  FiMessageCircle, FiSave, FiTool } from "react-icons/fi";
 import { useAuth } from "@/hooks/useAuth";
 
 export function SideBar({ children }: { children?: React.ReactNode }) {
@@ -43,7 +42,7 @@ export function SideBar({ children }: { children?: React.ReactNode }) {
             label: "Saved Photos",
             href: "/saved-images",
             icon: (
-              <Bookmark className="h-6 w-6 shrink-0 fill-blue-400 text-blue-400" />
+              <FiSave className="h-6 w-6 shrink-0 text-blue-400" />
             ),
           },
         ]
@@ -56,12 +55,7 @@ export function SideBar({ children }: { children?: React.ReactNode }) {
     {
       label: "Request Feature",
       href: "/request-image",
-      icon: <FiMessageCircle className="w-5 h-5 text-blue-400" />,
-    },
-    {
-      label: "Contact Us",
-      href: "/contact-us",
-      icon: <FiMail className="w-5 h-5 text-blue-400" />,
+      icon: <FiMessageCircle className="h-6 w-6 text-blue-400" />,
     },
     {
       label: "Support and Help",
@@ -71,7 +65,7 @@ export function SideBar({ children }: { children?: React.ReactNode }) {
     {
       label: "Feedback",
       href: "/feedback",
-      icon: <FiTool className="w-5 h-5 text-blue-400" />,
+      icon: <FiTool className="h-6 w-6 text-blue-400" />,
     },
     ...(user?.isAdmin
       ? [
@@ -126,20 +120,19 @@ export function SideBar({ children }: { children?: React.ReactNode }) {
 }
 export const Logo = () => {
   return (
-    <a
-      href="#"
+    <div
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
     >
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="font-medium whitespace-pre text-black dark:text-white"
+        className="font-medium whitespace-pre text-white"
       >
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-pink-400 text-transparent bg-clip-text drop-shadow">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-pink-500 text-transparent bg-clip-text drop-shadow">
           Prompt Pallete
         </h2>
       </motion.span>
-    </a>
+    </div>
   );
 };
 export const LogoIcon = () => {
@@ -148,7 +141,14 @@ export const LogoIcon = () => {
       href="#"
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
     >
-      <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" />
+      <img
+        src="/ppLog.png"
+        alt="Logo" 
+        height={32}
+        width={32}
+        className="h-7 w-7 rounded-full  from-red-500 to-blue-500 bg-gradient-to-br"
+        />
+      {/* <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-white" /> */}
     </a>
   );
 };
@@ -159,7 +159,7 @@ const Dashboard = ({ children }: { children?: React.ReactNode }) => {
       <div className="flex h-auto w-full flex-1 flex-col gap-2 overflow-y-scroll rounded-tl-2xl border border-neutral-800 md:pt-15 bg-black/70">
         {children || (
           <div className="flex h-full w-full items-center justify-center">
-            <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
+            <h1 className="text-2xl font-bold text-neutral-200">
               No Items Found !
             </h1>
           </div>

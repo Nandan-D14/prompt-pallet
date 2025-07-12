@@ -1,4 +1,4 @@
-import { X, ChevronLeft, ChevronRight, Heart, Share2, Bookmark, Info, Check, Copy, Download } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Info, Check, Copy, Download } from "lucide-react";
 import { FiHeart, FiDownload, FiShare2, FiCopy, FiSave } from "react-icons/fi";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
@@ -70,12 +70,12 @@ const Lightbox = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xl p-4 md:p-8" 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-2xl p-4 md:p-8" 
       onClick={onClose}
     >
       <div
-        className="relative flex flex-col lg:flex-row bg-white/10 dark:bg-black/10 backdrop-blur-2xl 
-                   rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl 
+        className="relative flex flex-col lg:flex-row bg-black/20 backdrop-blur-2xl 
+                   rounded-3xl border border-white/20 shadow-2xl 
                    overflow-hidden max-w-8xl w-full h-[95vh]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -83,7 +83,7 @@ const Lightbox = ({
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-neutral-800/[0.7] text-neutral-200 hover:bg-neutral-700/[0.9] transition-colors backdrop-blur-md" /* Liquid glass button */
+          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-neutral-800/[0.7] text-neutral-100 hover:bg-neutral-700/[0.9] transition-colors backdrop-blur-md"
         >
           <X size={24} />
         </motion.button>
@@ -93,7 +93,7 @@ const Lightbox = ({
           whileTap={{ scale: 0.9 }}
           onClick={() => onNavigate("prev")}
           disabled={currentIndex === 0}
-          className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-neutral-800/[0.7] text-neutral-200 hover:bg-neutral-700/[0.9] transition-colors backdrop-blur-md ${
+          className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-neutral-800/[0.7] text-neutral-100 hover:bg-neutral-700/[0.9] transition-colors backdrop-blur-md ${
             currentIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
@@ -119,7 +119,7 @@ const Lightbox = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 0.2 }}
-          className="flex-1 flex justify-center items-center p-4 lg:p-6 bg-neutral-950/[0.8] rounded-l-lg border-r border-neutral-700" /* Liquid glass image area */
+          className="flex-1 flex justify-center items-center p-4 lg:p-6 bg-neutral-950/[0.2] rounded-l-lg border-r border-neutral-700" 
         >
           <img
             src={currentPhoto.src}
@@ -128,10 +128,10 @@ const Lightbox = ({
           />
         </motion.div>
 
-        <div className="w-full lg:w-96 p-6 bg-white/5 dark:bg-black/5 backdrop-blur-xl 
-                      text-gray-900 dark:text-white flex flex-col overflow-y-auto border-l border-white/10 dark:border-white/5">
+        <div className="w-full lg:w-96 p-6 bg-black/5 backdrop-blur-xl 
+                      text-white flex flex-col overflow-y-auto border-l  border-white/5">
           <h3 className="text-2xl font-bold mb-2">{currentPhoto.title}</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">{currentPhoto.description}</p>
+          <p className="text-sm text-gray-200 mb-6">{currentPhoto.description}</p>
 
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-3 mb-6">
@@ -143,7 +143,7 @@ const Lightbox = ({
                         backdrop-blur-xl transition-all duration-300 font-medium text-sm
                         ${isLiked 
                           ? 'bg-red-500/80 text-white' 
-                          : 'bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10 hover:bg-red-500/20'
+                          : 'bg-black/10 border border-white/10 hover:bg-red-500/20'
                         }
                         ${!user ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
             >
@@ -159,7 +159,7 @@ const Lightbox = ({
                         backdrop-blur-xl transition-all duration-300 font-medium text-sm
                         ${isSaved 
                           ? 'bg-blue-500/80 text-white' 
-                          : 'bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10 hover:bg-blue-500/20'
+                          : 'bg-black/10 border border-white/10 hover:bg-blue-500/20'
                         }
                         ${!user ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
             >
@@ -171,8 +171,8 @@ const Lightbox = ({
             <button
               onClick={() => onShare?.(currentPhoto)}
               className="liquid-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
-                       bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10
-                       hover:bg-green-500/20 backdrop-blur-xl transition-all duration-300 
+                       bg-black/10 border border-white/10
+                       hover:bg-green-500/0 backdrop-blur-xl transition-all duration-300 
                        font-medium text-sm hover:scale-105"
             >
               <FiShare2 className="w-4 h-4" />
@@ -183,8 +183,8 @@ const Lightbox = ({
             <button
               onClick={() => onDownload?.(currentPhoto)}
               className="liquid-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
-                       bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10
-                       hover:bg-purple-500/20 backdrop-blur-xl transition-all duration-300 
+                       bg-black/10 border border-white/10
+                       hover:bg-purple-500/0 backdrop-blur-xl transition-all duration-300 
                        font-medium text-sm hover:scale-105"
             >
               <FiDownload className="w-4 h-4" />
@@ -194,7 +194,7 @@ const Lightbox = ({
           
           {!user && (
             <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-              <p className="text-sm text-yellow-600 dark:text-yellow-400 text-center">
+              <p className="text-sm text-yellow-400 text-center">
                 Sign in to like and save photos
               </p>
             </div>
@@ -207,9 +207,9 @@ const Lightbox = ({
               {currentPhoto.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs px-3 py-2 rounded-full bg-white/10 dark:bg-black/10 
-                           border border-white/20 dark:border-white/10 backdrop-blur-xl
-                           text-gray-700 dark:text-gray-300"
+                  className="text-xs px-3 py-2 rounded-full bg-black/10 
+                           border border-white/10 backdrop-blur-xl
+                           text-gray-300"
                 >
                   {tag}
                 </span>
@@ -224,9 +224,9 @@ const Lightbox = ({
               {currentPhoto.prompt && (
                 <motion.button
                   onClick={handleCopyPrompt}
-                  className="ml-auto p-2 rounded-xl bg-white/10 dark:bg-black/10 
-                           border border-white/20 dark:border-white/10 backdrop-blur-xl
-                           hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-300 
+                  className="ml-auto p-2 rounded-xl bg-black/10 
+                           border border-white/10 backdrop-blur-xl
+                           hover:bg-black/20 transition-all duration-300 
                            flex items-center gap-2 text-xs"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -245,7 +245,7 @@ const Lightbox = ({
             </h4>
             <div className="bg-white/5 dark:bg-black/5 border border-white/10 dark:border-white/5 
                           rounded-xl p-4 backdrop-blur-xl">
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p className="text-sm text-gray-300 leading-relaxed">
                 {currentPhoto.prompt || "No specific prompt details available for this image."}
               </p>
             </div>

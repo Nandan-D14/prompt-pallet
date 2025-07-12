@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { IconMenu2, IconX } from "@tabler/icons-react";
+import { usePathname } from "next/dist/client/components/navigation";
 
 interface Links {
   label: string;
@@ -163,11 +164,18 @@ export const SidebarLink = ({
   className?: string;
 }) => {
   const { open, animate } = useSidebar();
+  
+    const pathname = usePathname();
+  const isActive = pathname === link.href;
   return (
     <a
       href={link.href}
       className={cn(
-        "flex items-center justify-start gap-2  group/sidebar py-2",
+        `flex items-center justify-start gap-2  group/sidebar py-2 
+        ${isActive 
+                                ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-blue-400 dark:text-blue-300' 
+                                : 'text-gray-400 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
+                              }`,
         className
       )}
       {...props}
