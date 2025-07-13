@@ -53,7 +53,7 @@ export default function SupportHelp() {
             <h2 className="text-xl font-semibold mb-4 text-white">Quick Actions</h2>
             <div className="space-y-3">
               <a 
-                href="/contact-support" 
+                href="/contact-us" 
                 className="flex items-center space-x-3 p-3 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 transition-all duration-300 border border-blue-500/30"
               >
                 <FiMail className="w-5 h-5 text-blue-400" />
@@ -151,7 +151,7 @@ export default function SupportHelp() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/contact-us"
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105"
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-red-600 hover:from-blue-600 hover:to-red-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105"
             >
               Contact Support
             </a>

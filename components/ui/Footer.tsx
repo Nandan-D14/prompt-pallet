@@ -1,11 +1,45 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { FiGithub,FiInstagram, FiMail,  FiLinkedin } from 'react-icons/fi';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState('');
+
+  const handleSubscribe = async () => {
+    if (!email) {
+      setSubscribeMessage('Please enter your email');
+      return;
+    }
+
+    setIsSubscribing(true);
+    setSubscribeMessage('');
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubscribeMessage('Successfully subscribed!');
+        setEmail('');
+      } else {
+        setSubscribeMessage(data.error || 'Failed to subscribe');
+      }
+    } catch (error) {
+      setSubscribeMessage('Network error occurred');
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   return (
     <footer className="relative mt-20 bg-black/80 backdrop-blur-2xl border-t border-white/10">
@@ -39,10 +73,10 @@ export default function Footer() {
               <Link href="https://www.linkedin.com/in/nandan-d14" className="text-gray-400 hover:text-blue-400 transition-colors duration-300">
                 <FiLinkedin className="w-5 h-5" />
               </Link>
-              <Link href="https://www.instagram.com/__nandan__d14/" className="text-gray-400 hover:text-pink-400 transition-colors duration-300">
+              <Link href="https://www.instagram.com/masked_edits99" className="text-gray-400 hover:text-pink-400 transition-colors duration-300">
                 <FiInstagram className="w-5 h-5" />
               </Link>
-              <Link href="#" className="text-gray-400 hover:text-green-400 transition-colors duration-300">
+              <Link href="https://www.instagram.com/__nandan__d14/" className="text-gray-400 hover:text-green-400 transition-colors duration-300">
                 <FiMail className="w-5 h-5" />
               </Link>
             </div>
@@ -106,21 +140,28 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex">
                 <input
-                  id='subcribInput'
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className=" flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-l-xl 
+                  className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-l-xl 
                            text-white placeholder-gray-400 focus:outline-none focus:ring-2 
                            focus:ring-blue-500 focus:border-transparent backdrop-blur-xl text-sm"
                 />
                 <button 
-                // onClick={sendEmail(document.getElementById('subcribInput')?.innerText)}
-                 className="px-4 py-2 bg-gradient-to-r from-blue-500 to-pink-500 
-                                 text-white rounded-r-xl hover:from-blue-600 hover:to-red-700 
-                                 transition-all duration-300 text-sm font-medium">
-                  Subscribe
+                  onClick={handleSubscribe}
+                  disabled={isSubscribing}
+                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-pink-500 
+                           text-white rounded-r-xl hover:from-blue-600 hover:to-red-700 
+                           transition-all duration-300 text-sm font-medium disabled:opacity-50">
+                  {isSubscribing ? 'Subscribing...' : 'Subscribe'}
                 </button>
               </div>
+              {subscribeMessage && (
+                <div className={`text-xs ${subscribeMessage.includes('Successfully') ? 'text-green-400' : 'text-red-400'}`}>
+                  {subscribeMessage}
+                </div>
+              )}
               <p className="text-xs text-gray-500">
                 No spam, unsubscribe at any time.
               </p>

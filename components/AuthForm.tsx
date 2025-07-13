@@ -182,17 +182,38 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
     setError(null);
     
     try {
-      await sendPasswordResetEmail(auth, form.email);
+      await sendPasswordResetEmail(auth, form.email, {
+        url: `${window.location.origin}/sign-in`,
+        handleCodeInApp: false
+      });
       setResetEmailSent(true);
-      setForgotPassword(false);
       setError(null);
       alert('Password reset email sent! Check your inbox and spam folder.');
     } catch (err: any) {
       console.error('Password reset error:', err);
-      setError('Failed to send password reset email. Please try again.');
+      let errorMessage = 'Failed to send password reset email. Please try again.';
+      
+      // Handle specific Firebase error codes
+      if (err.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email address.';
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.';
+      } else if (err.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle back to login
+  const handleBackToLogin = () => {
+    setForgotPassword(false);
+    setResetEmailSent(false);
+    setError(null);
+    // Keep the email in the form so user doesn't have to re-enter it
   };
 
   // Show loading state until component is mounted
@@ -285,7 +306,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
               type="button"
               onClick={handleForgotPassword}
               disabled={loading}
-              className={`flex-1 bg-gradient-to-r cursor-auto from-indigo-600 to-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:scale-105 transition-transform ${
+              className={`flex-1 bg-gradient-to-r from-indigo-600 to-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:scale-105 transition-transform cursor-pointer ${
                 loading ? "opacity-60 cursor-not-allowed" : ""
               }`}
             >
@@ -294,8 +315,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
             
             <button
               type="button"
-              onClick={() => setForgotPassword(false)}
-              className="flex-1 bg-gray-700 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-gray-600 transition"
+              onClick={handleBackToLogin}
+              className="flex-1 bg-gray-700 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-gray-600 transition cursor-pointer"
             >
               Back to Login
             </button>
@@ -379,7 +400,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onSubmit }) => {
               <button 
                 type="button" 
                 onClick={() => setForgotPassword(true)}
-                className="text-blue-400 text-sm hover:underline z-100 cursor-auto"
+                className="text-blue-400 text-sm hover:underline z-100 cursor-pointer"
               >
                 Forgot password?
               </button>

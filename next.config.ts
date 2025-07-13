@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from 'path';
 
 const nextConfig: NextConfig = {
   eslint: {
@@ -32,9 +33,24 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
-  output: 'standalone',
   serverExternalPackages: ['firebase-admin'],
   webpack: (config, { isServer }) => {
+    // Fix webpack cache issues on Windows
+    config.cache = {
+      type: 'filesystem',
+      buildDependencies: {
+        config: [__filename]
+      },
+      cacheDirectory: path.resolve(process.cwd(), '.next/cache/webpack')
+    };
+    
+    // Disable problematic optimizations that cause issues on Windows
+    config.optimization = {
+      ...config.optimization,
+      moduleIds: 'named',
+      chunkIds: 'named'
+    };
+    
     if (!isServer) {
       // Don't resolve Node.js specific modules on the client to prevent errors
       config.resolve.fallback = {

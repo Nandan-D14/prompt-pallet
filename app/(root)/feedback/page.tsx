@@ -21,7 +21,7 @@ import { CheckCircle, Loader2, MessageCircle, Bug, Lightbulb, User } from 'lucid
 // --- Email sending function (uses Resend SDK) ---
 const sendFeedback = async (data: FeedbackData): Promise<boolean> => {
   try {
-    const res = await fetch('/api/send-feedback', {
+    const res = await fetch('/api/send-feedback/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

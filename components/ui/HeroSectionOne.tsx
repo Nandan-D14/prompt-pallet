@@ -97,7 +97,7 @@ export function HeroSectionOne() {
                          transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl
                          min-w-[200px]"
                 onClick={() => {
-                  window.location.href = "/contact-support";
+                  window.location.href = "/contact-us";
                 }}
               >
                 Contact Support
