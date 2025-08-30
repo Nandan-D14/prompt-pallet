@@ -23,22 +23,20 @@ export default function Home() {
 
   return (
     <div className="flex flex-col overflow-auto w-full h-auto min-h-screen bg-black">
-      <div className="min-h-screen w-full relative bg-black">
-
+    <GlassyNavigation />
+    <div className="min-h-screen w-full relative bg-black">
       <div
         className="absolute inset-0 z-0"
         style={{
-          background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(236, 72, 153, 0.25), transparent 70%), #000000",
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(236, 72, 153, 0.25), transparent 70%), #000000",
         }}
       />
-          <GlassyNavigation />
-          <div className="pt-10">
-            <HeroSectionOne />
-            <WorkflowSection />
-            <Footer />
-          </div>
-      </div>
-    
-  </div>  
+      <HeroSectionOne />
+      <WorkflowSection />
+      <Footer />
+    </div>
+  </div>
+
   );
 }
