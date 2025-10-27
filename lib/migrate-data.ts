@@ -222,8 +222,7 @@ export async function migrateDataToFirestore() {
     for (const photo of photoData) {
       // Check if this photo already exists
       const existingQuery = query(
-        collection(db, 'gallery'), 
-        where('title', '==', photo.title),
+        collection(db, 'gallery'),
         where('src', '==', photo.src)
       );
       
