@@ -20,6 +20,7 @@ import {
   collection,
   addDoc,
   getDocs,
+  getCountFromServer,
   query,
   orderBy,
   limit,
@@ -409,14 +410,14 @@ export class FirebaseService {
   async getStats(): Promise<{ totalUsers: number; totalGalleryItems: number; recentItems: any[] }> {
     try {
       const [usersSnapshot, gallerySnapshot, recentItemsSnapshot] = await Promise.all([
-        getDocs(collection(db, "users")),
-        getDocs(collection(db, "gallery")),
+        getCountFromServer(collection(db, "users")),
+        getCountFromServer(collection(db, "gallery")),
         getDocs(query(collection(db, "gallery"), orderBy("createdAt", "desc"), limit(5)))
       ]);
 
       return {
-        totalUsers: usersSnapshot.size,
-        totalGalleryItems: gallerySnapshot.size,
+        totalUsers: usersSnapshot.data().count,
+        totalGalleryItems: gallerySnapshot.data().count,
         recentItems: recentItemsSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
